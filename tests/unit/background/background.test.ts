@@ -21,6 +21,7 @@ const mockResume = jest.fn();
 const mockGetStatus = jest.fn();
 const mockGetIndexingStats = jest.fn();
 const mockClearDatabase = jest.fn();
+const mockGetPageByUrl = jest.fn();
 const mockHandleGetRecommendedModels = jest.fn();
 const mockHandleLoadModel = jest.fn();
 const mockHandleUnloadModel = jest.fn();
@@ -50,6 +51,12 @@ jest.mock('@/background/SimplePipeline', () => ({
 jest.mock('@/background/db', () => ({
   getIndexingStats: mockGetIndexingStats,
   clearDatabase: mockClearDatabase,
+  getPageByUrl: mockGetPageByUrl,
+}));
+
+jest.mock('@/utils/html', () => ({
+  ...jest.requireActual('@/utils/html'),
+  isExcluded: jest.fn(() => false),
 }));
 
 jest.mock('@/background/offscreen', () => ({
@@ -237,6 +244,23 @@ describe('Background message routing', () => {
       expect(mockFetchItems).toHaveBeenCalled();
       expect(mockStart).toHaveBeenCalledWith([{ id: '1', url: 'https://a.com', title: 'A' }]);
       expect(result).toEqual({ success: true, itemsQueued: 1 });
+    });
+
+    it('handles INDEX_MANUAL_URLS and starts pipeline with URL list', async () => {
+      mockGetPageByUrl.mockResolvedValue(undefined);
+      mockGetStatus.mockReturnValue({ isRunning: false, isPaused: false, metrics: {} });
+      const result = await runListener({
+        action: MessageAction.INDEX_MANUAL_URLS,
+        urls: ['https://example.com/a', 'https://example.com/b'],
+      });
+      expect(mockGetPageByUrl).toHaveBeenCalledWith('https://example.com/a');
+      expect(mockGetPageByUrl).toHaveBeenCalledWith('https://example.com/b');
+      expect(mockStart).toHaveBeenCalled();
+      const [items] = mockStart.mock.calls[0];
+      expect(items).toHaveLength(2);
+      expect(items[0]).toMatchObject({ url: 'https://example.com/a', title: 'https://example.com/a', processed: 0 });
+      expect(items[1]).toMatchObject({ url: 'https://example.com/b', title: 'https://example.com/b', processed: 0 });
+      expect(result).toEqual({ success: true, count: 2 });
     });
 
     it('handles PAUSE_INDEXING', async () => {
