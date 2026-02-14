@@ -1,14 +1,14 @@
 import { useEffect, useState, useRef } from 'react';
 
 import { cn, fetchPageContents, getPageUrl, cleanContent, isThinking } from '@/utils';
-import { Message, PageType, Roles, Source } from '@/utils/types';
+import { PageType, Roles, Source } from '@/utils/types';
 
 import { ChatInputForm } from '../molecules/ChatInputForm';
 import { ChatTimestamp } from '../molecules/ChatTimestamp';
 import { ModelLoadingIndicator } from '../molecules/ModelLoadingIndicator';
 import { StatusDisplay } from '../molecules/StatusDisplay';
 import { ChatHeader } from '../organisms/ChatHeader';
-import { MessageList } from '../organisms/MessageList';
+import { MessageList, MessageListHandle } from '../organisms/MessageList';
 
 export interface ChatInterfaceProps {
   className?: string;
@@ -26,10 +26,9 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
   const [loadingText, setLoadingText] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [messages, setMessages] = useState<Partial<Message>[]>([]);
   const [context, setContext] = useState('');
   const [timestamp, setTimestamp] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messageListRef = useRef<MessageListHandle>(null);
   const assistantContentRef = useRef('');
 
   useEffect(() => {
@@ -54,14 +53,7 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
         setLoadingText('');
         setLoadingProgress(0);
       } else if (msg.action === 'chatStream' && msg.delta) {
-        setMessages((prev) => {
-          const newMessages = [...prev];
-          const lastMsg = newMessages[newMessages.length - 1];
-          if (lastMsg && lastMsg.role === Roles.ASSISTANT) {
-            lastMsg.content = (lastMsg.content ?? '') + msg.delta;
-          }
-          return newMessages;
-        });
+        messageListRef.current?.appendAssistantDelta(msg.delta);
         assistantContentRef.current += msg.delta;
         const current = assistantContentRef.current;
         const isCurrentlyThinking = isThinking(current);
@@ -76,10 +68,6 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
     chrome.runtime.onMessage.addListener(handleMessage);
     return () => chrome.runtime.onMessage.removeListener(handleMessage);
   }, []);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
   const fetchModels = async () => {
     setModelsError(null);
@@ -182,7 +170,7 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
           content: cleanContent(m.content),
           sources: normalizeSources(m.sources),
         }));
-        setMessages(cleaned);
+        messageListRef.current?.setMessages(cleaned);
       }
     } catch (e) {
       console.error(e);
@@ -251,7 +239,7 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
       // searchContext not implemented or failed
     }
 
-    setMessages((prev) => [...prev, { role: Roles.USER, content: userMsg }, { role: Roles.ASSISTANT, content: '', sources }]);
+    messageListRef.current?.appendUserAndAssistant(userMsg, sources);
 
     let fullContext = '';
     if (pageText) fullContext += `=== CURRENT PAGE CONTENT ===\n${pageText}\n\n`;
@@ -278,14 +266,7 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
         sources: sourcesForDb,
       });
     } catch (e) {
-      setMessages((prev) => {
-        const newMsgs = [...prev];
-        const last = newMsgs[newMsgs.length - 1];
-        if (last && last.role === 'assistant') {
-          last.content = 'Error: ' + e;
-        }
-        return newMsgs;
-      });
+      messageListRef.current?.setLastAssistantContent('Error: ' + e);
     }
     setIsGenerating(false);
     setLoadingText('');
@@ -319,13 +300,7 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
       {modelsError && <StatusDisplay type="error" message={modelsError} onRetry={fetchModels} className="mb-2" />}
 
       <ModelLoadingIndicator loadingText={loadingText} loadingProgress={loadingProgress} />
-      <MessageList
-        messages={messages}
-        loadingText={loadingText}
-        modelLoaded={modelLoaded}
-        messagesEndRef={messagesEndRef}
-        onCopyMessage={() => 'Copied'}
-      />
+      <MessageList loadingText={loadingText} modelLoaded={modelLoaded} ref={messageListRef} onCopyMessage={() => 'Copied'} />
       <ChatTimestamp timestamp={timestamp} />
 
       <ChatInputForm
@@ -333,6 +308,7 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
         onSend={handleSend}
         onStop={handleStop}
         isGenerating={isGenerating}
+        loadingText={loadingText}
         modelLoaded={modelLoaded}
       />
     </div>

@@ -10,9 +10,10 @@ export interface ChatInputFormProps {
   onStop: () => void;
   isGenerating: boolean;
   modelLoaded: boolean;
+  loadingText?: string;
 }
 
-export function ChatInputForm({ className, onSend, onStop, isGenerating, modelLoaded }: ChatInputFormProps) {
+export function ChatInputForm({ className, onSend, onStop, isGenerating, modelLoaded, loadingText }: ChatInputFormProps) {
   const [inputValue, setInputValue] = useState('');
 
   const handleSend = () => {
@@ -22,6 +23,8 @@ export function ChatInputForm({ className, onSend, onStop, isGenerating, modelLo
     setInputValue('');
   };
 
+  const enabled = !isGenerating && !loadingText && modelLoaded;
+
   return (
     <div className={cn('p-3 border-t bg-background flex gap-2', className)}>
       <Input
@@ -29,10 +32,10 @@ export function ChatInputForm({ className, onSend, onStop, isGenerating, modelLo
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && handleSend()}
         placeholder="Ask your bookmarks..."
-        disabled={isGenerating}
+        disabled={!enabled}
         className="flex-1"
       />
-      {!isGenerating ? (
+      {enabled ? (
         <Button onClick={handleSend} disabled={!inputValue || !modelLoaded}>
           <Send className="h-4 w-4" />
         </Button>
