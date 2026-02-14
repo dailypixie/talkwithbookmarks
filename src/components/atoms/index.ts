@@ -2,9 +2,9 @@
  * Atoms - Small reusable UI components
  */
 
-export { Button, buttonVariants } from './button';
-export { Input } from './input';
-export { Progress } from './progress';
+export { Button, buttonVariants } from '@/components/atoms/button';
+export { Input } from '@/components/atoms/input';
+export { Progress } from '@/components/atoms/progress';
 export {
   Select,
   SelectGroup,
@@ -16,5 +16,5 @@ export {
   SelectSeparator,
   SelectScrollUpButton,
   SelectScrollDownButton,
-} from './select';
-export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
+} from '@/components/atoms/select';
+export { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/atoms/tabs';

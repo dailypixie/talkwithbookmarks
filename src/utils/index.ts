@@ -23,8 +23,8 @@ export function cleanContent(content: string): string {
   return c.trim();
 }
 
-export * from './html';
-export * from './logger';
-export * from './constants';
-export * from './types';
-export * from './theme';
+export * from '@/utils/html';
+export * from '@/utils/logger';
+export * from '@/utils/constants';
+export * from '@/utils/types';
+export * from '@/utils/theme';

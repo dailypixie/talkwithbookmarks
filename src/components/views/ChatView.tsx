@@ -3,12 +3,12 @@ import { useEffect, useState, useRef } from 'react';
 import { cn, fetchPageContents, getPageUrl, cleanContent, isThinking } from '@/utils';
 import { PageType, Roles, Source } from '@/utils/types';
 
-import { ChatInputForm } from '../molecules/ChatInputForm';
-import { ChatTimestamp } from '../molecules/ChatTimestamp';
-import { ModelLoadingIndicator } from '../molecules/ModelLoadingIndicator';
-import { StatusDisplay } from '../molecules/StatusDisplay';
-import { ChatHeader } from '../organisms/ChatHeader';
-import { MessageList, MessageListHandle } from '../organisms/MessageList';
+import { ChatInputForm } from '@/components/molecules/ChatInputForm';
+import { ChatTimestamp } from '@/components/molecules/ChatTimestamp';
+import { ModelLoadingIndicator } from '@/components/molecules/ModelLoadingIndicator';
+import { StatusDisplay } from '@/components/molecules/StatusDisplay';
+import { ChatHeader } from '@/components/organisms/ChatHeader';
+import { MessageList, MessageListHandle } from '@/components/organisms/MessageList';
 
 export interface ChatInterfaceProps {
   className?: string;

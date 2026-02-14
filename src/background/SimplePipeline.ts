@@ -16,8 +16,8 @@ import {
   PipelineState,
 } from '@/utils/types';
 import { pipelineLogger as logger } from '@/utils/logger';
-import { downloadStage, chunkStage, StageProcessor } from './stages';
-import { pipelineEvents } from './events';
+import { downloadStage, chunkStage, StageProcessor } from '@/background/stages';
+import { pipelineEvents } from '@/background/events';
 
 // Stage configuration with their processors
 const STAGES: { stage: PipelineStage; processor: StageProcessor }[] = [

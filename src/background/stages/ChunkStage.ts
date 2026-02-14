@@ -4,7 +4,7 @@
  */
 
 import { PipelineStage, StageQueueItem } from '@/utils/types';
-import { StageProcessor } from './StageProcessor';
+import { StageProcessor } from '@/background/stages/StageProcessor';
 import { extractTextFromHTML, splitTextSemantic } from '@/utils/html';
 import { indexingLogger as logger } from '@/utils/logger';
 

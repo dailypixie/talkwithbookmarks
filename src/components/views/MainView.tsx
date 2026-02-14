@@ -3,7 +3,7 @@ import { ChatInterface } from '@/components/views/ChatView';
 import { SummaryInterface } from '@/components/views/SummaryView';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/atoms/tabs';
 import { ThemeToggle } from '@/components/molecules/ThemeToggle';
-import { IndexingInterface } from './IndexingView';
+import { IndexingInterface } from '@/components/views/IndexingView';
 
 export default function MainView() {
   const [activeTab, setActiveTab] = useState<string>('chat');
