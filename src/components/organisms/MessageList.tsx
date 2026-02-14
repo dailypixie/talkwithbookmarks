@@ -8,7 +8,6 @@ export interface MessageListProps {
   className?: string;
   loadingText?: string;
   modelLoaded?: boolean;
-  onCopyMessage?: (content: string) => void;
 }
 
 export interface MessageListHandle {
@@ -19,7 +18,7 @@ export interface MessageListHandle {
 }
 
 export const MessageList = React.forwardRef<MessageListHandle, MessageListProps>(function MessageList(
-  { className, loadingText, modelLoaded, onCopyMessage },
+  { className, loadingText, modelLoaded },
   ref
 ) {
   const [messages, setMessages] = useState<Partial<Message>[]>([]);
@@ -57,7 +56,7 @@ export const MessageList = React.forwardRef<MessageListHandle, MessageListProps>
     <div className={cn('flex-1 overflow-y-auto p-3 space-y-4', className)}>
       {messages.length === 0 && !loadingText && <ChatEmptyState modelLoaded={!!modelLoaded} />}
       {messages.map((msg, idx) => (
-        <MessageBubble key={idx} message={msg} onCopy={onCopyMessage} />
+        <MessageBubble key={idx} message={msg} />
       ))}
       <div ref={messagesEndRef} />
     </div>

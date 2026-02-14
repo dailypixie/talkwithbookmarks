@@ -13,13 +13,13 @@ import { MessageList, MessageListHandle } from '@/components/organisms/MessageLi
 import { useChatState } from '@/hooks/useChatState';
 import { useModelState } from '@/hooks/useModelState';
 
-export interface ChatInterfaceProps {
+export interface ChatViewProps {
   className?: string;
   onClose?: () => void;
   container?: HTMLElement | null;
 }
 
-export function ChatInterface({ className, container }: ChatInterfaceProps) {
+export function ChatView({ className, container }: ChatViewProps) {
   const messageListRef = useRef<MessageListHandle>(null);
   const [showHistory, setShowHistory] = useState(false);
   const {
@@ -59,11 +59,7 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
 
   if (showHistory) {
     return (
-      <ConversationHistory
-        onSelectConversation={handleSelectConversation}
-        onNewChat={handleNewChat}
-        onBack={() => setShowHistory(false)}
-      />
+      <ConversationHistory onSelectConversation={handleSelectConversation} onNewChat={handleNewChat} onBack={() => setShowHistory(false)} />
     );
   }
 
@@ -86,7 +82,7 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
       {modelsError && <StatusDisplay type="error" message={modelsError} onRetry={refreshModels} className="mb-2" />}
 
       <ModelLoadingIndicator loadingText={loadingText} loadingProgress={loadingProgress} />
-      <MessageList loadingText={loadingText} modelLoaded={modelLoaded} ref={messageListRef} onCopyMessage={() => 'Copied'} />
+      <MessageList loadingText={loadingText} modelLoaded={modelLoaded} ref={messageListRef} />
       <ChatTimestamp timestamp={timestamp} />
 
       <ChatInputForm
