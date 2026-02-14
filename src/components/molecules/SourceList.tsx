@@ -8,8 +8,10 @@ export interface SourceListProps {
   sources?: Partial<Source>[];
 }
 
-export function SourceList({ className, sources }: SourceListProps) {
-  if (!sources?.length) return null;
+export function SourceList({ className, sources: rawSources }: SourceListProps) {
+  if (!rawSources?.length) return null;
+
+  const sources = [...new Map(rawSources?.map((s) => [s.url, s])).values()].filter((s) => s.type !== PageType.CURRENT_PAGE);
 
   return (
     <div className={cn('relative group', className)}>
