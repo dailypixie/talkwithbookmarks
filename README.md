@@ -22,7 +22,7 @@ Follow these instructions to set up the development environment.
 
 ### Installing
 
-1. Use the link in the releases section page to download the extension zip file.
+1. Use the link in the releases section page or [https://github.com/dailypixie/talkwithbookmarks/releases](https://github.com/dailypixie/talkwithbookmarks/releases) to download the extension zip file.
 2. Unzip the file.
 3. Open Chrome and navigate to `chrome://extensions`.
 4. Enable **Developer mode** using the toggle in the top-right corner.
