@@ -23,6 +23,8 @@ export function MessageBubble({ className, message, onCopy }: MessageBubbleProps
     }
   };
 
+  if (!safeContent) return null;
+
   return (
     <div className={cn('flex flex-col gap-1', isUser ? 'items-end' : 'items-start', className)}>
       <div
