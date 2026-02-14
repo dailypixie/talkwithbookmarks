@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChatInterface } from '@/components/views/ChatView';
+import { ChatView } from '@/components/views/ChatView';
 import { SummaryInterface } from '@/components/views/SummaryView';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/atoms/tabs';
 import { ThemeToggle } from '@/components/molecules/ThemeToggle';
@@ -29,7 +29,7 @@ export default function MainView() {
         </TabsContent>
 
         <TabsContent value="chat" className="flex-1 overflow-hidden mt-0 data-[state=active]:flex flex-col">
-          <ChatInterface className="h-full border-0" />
+          <ChatView className="h-full border-0" />
         </TabsContent>
 
         <TabsContent value="index" className="flex-1 overflow-auto mt-0 data-[state=active]:flex flex-col">

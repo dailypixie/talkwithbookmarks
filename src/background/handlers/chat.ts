@@ -108,10 +108,7 @@ export async function handleGetHistory(
   }
 }
 
-export async function handleGetConversations(
-  limit = 20,
-  offset = 0
-): Promise<{ conversations: Conversation[]; error?: string }> {
+export async function handleGetConversations(limit = 20, offset = 0): Promise<{ conversations: Conversation[]; error?: string }> {
   try {
     const convers = await DbModule.getConversations(limit, offset);
     return { conversations: convers };

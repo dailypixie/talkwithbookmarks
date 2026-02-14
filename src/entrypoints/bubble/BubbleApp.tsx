@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MessageSquare, X, Minimize2, Maximize2, PanelRightOpen, PanelRightClose } from 'lucide-react';
 import { Button } from '@/components/atoms/button';
-import { ChatInterface } from '@/components/views/ChatView';
+import { ChatView } from '@/components/views/ChatView';
 import { SummaryInterface } from '@/components/views/SummaryView';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/atoms/tabs';
 import { cn } from '@/utils';
@@ -95,7 +95,7 @@ export default function BubbleApp() {
           </TabsContent>
 
           <TabsContent value="chat" className="flex-1 overflow-hidden mt-0 data-[state=active]:flex flex-col">
-            <ChatInterface container={container} />
+            <ChatView container={container} />
           </TabsContent>
         </Tabs>
       </div>

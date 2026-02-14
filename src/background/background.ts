@@ -5,7 +5,8 @@
 
 import { bookmarksDataSource } from '@/background/bookmarks';
 import { simplePipeline } from '@/background/SimplePipeline';
-import { getIndexingStats, clearDatabase } from '@/background/db';
+import { getIndexingStats, clearDatabase, getPageByUrl } from '@/background/db';
+import { isExcluded } from '@/utils/html';
 import { backgroundLogger as logger } from '@/utils/logger';
 import { MessageAction, IndexingStatus, IndexingProgress, PipelineState } from '@/utils/types';
 import { initializeOffscreen } from '@/background/offscreen';
@@ -115,6 +116,40 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
           // Run pipeline without awaiting so the popup gets a response immediately
           // and can show progress via GET_INDEXING_PROGRESS polling
           void simplePipeline.start(items);
+          break;
+        }
+
+        case MessageAction.INDEX_MANUAL_URLS: {
+          const urls: string[] = message.urls ?? [];
+          const trimmed = urls
+            .filter((u: unknown) => typeof u === 'string' && u.trim().length > 0)
+            .map((u: string) => u.trim())
+            .filter((u) => !isExcluded(u));
+          const toQueue: Array<{ id: string; url: string; title: string; content: string; timestamp: number; processed: number }> = [];
+          for (const url of trimmed) {
+            const existing = await getPageByUrl(url);
+            if (existing) continue; // already in db (indexed or queued)
+            toQueue.push({
+              id: crypto.randomUUID(),
+              url,
+              title: url,
+              content: '',
+              timestamp: Date.now(),
+              processed: 0,
+            });
+          }
+          const status = simplePipeline.getStatus();
+          if (status.isRunning) {
+            sendResponse({ success: false, count: 0, message: 'Indexing already in progress' });
+            break;
+          }
+          if (toQueue.length === 0) {
+            sendResponse({ success: true, count: 0, message: trimmed.length === 0 ? 'No valid URLs' : 'All URLs already indexed or queued' });
+            break;
+          }
+          logger.info(`Queueing ${toQueue.length} manual URLs for indexing`);
+          sendResponse({ success: true, count: toQueue.length });
+          void simplePipeline.start(toQueue);
           break;
         }
 

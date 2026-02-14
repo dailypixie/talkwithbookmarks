@@ -10,6 +10,7 @@ export enum MessageAction {
   // Indexing
   GET_INDEXING_PROGRESS = 'getIndexingProgress',
   START_INDEXING = 'startIndexing',
+  INDEX_MANUAL_URLS = 'indexManualUrls',
   PAUSE_INDEXING = 'pauseIndexing',
   RESUME_INDEXING = 'resumeIndexing',
 
