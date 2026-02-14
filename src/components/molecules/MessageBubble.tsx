@@ -47,9 +47,7 @@ export function MessageBubble({ className, message }: MessageBubbleProps) {
       <div
         className={cn(
           'rounded-lg px-3 py-2 max-w-[90%] break-words text-sm',
-          isUser
-            ? 'bg-secondary text-secondary-foreground dark:bg-primary dark:text-primary-foreground'
-            : 'bg-muted text-foreground'
+          isUser ? 'bg-secondary text-secondary-foreground dark:bg-primary dark:text-primary-foreground' : 'bg-muted text-foreground'
         )}
       >
         {safeContent.split('\n').map((line, idx) => (
