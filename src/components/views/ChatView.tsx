@@ -25,7 +25,6 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
   const [modelLoaded, setModelLoaded] = useState(false);
   const [loadingText, setLoadingText] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [inputValue, setInputValue] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [messages, setMessages] = useState<Partial<Message>[]>([]);
   const [context, setContext] = useState('');
@@ -199,11 +198,9 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
     }));
   }
 
-  const handleSend = async () => {
-    if (!inputValue.trim() || !modelLoaded || isGenerating) return;
-
-    const userMsg = inputValue.trim();
-    setInputValue('');
+  const handleSend = async (value: string) => {
+    const userMsg = value.trim();
+    if (!userMsg || !modelLoaded || isGenerating) return;
     setIsGenerating(true);
     setLoadingText('Thinking...');
     assistantContentRef.current = '';
@@ -333,11 +330,9 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
 
       <ChatInputForm
         className="p-3 border-t bg-background flex gap-2"
-        onInputChange={setInputValue}
         onSend={handleSend}
         onStop={handleStop}
         isGenerating={isGenerating}
-        inputValue={inputValue}
         modelLoaded={modelLoaded}
       />
     </div>
