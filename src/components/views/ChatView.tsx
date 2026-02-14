@@ -10,8 +10,8 @@ import { ModelLoadingIndicator } from '@/components/molecules/ModelLoadingIndica
 import { StatusDisplay } from '@/components/molecules/StatusDisplay';
 import { ChatHeader } from '@/components/organisms/ChatHeader';
 import { MessageList, MessageListHandle } from '@/components/organisms/MessageList';
-import { useChatState } from '@/hooks/useChatState';
-import { useModelState } from '@/hooks/useModelState';
+import { useChatState } from '@/ui/hooks/useChatState';
+import { useModelState } from '@/ui/hooks/useModelState';
 
 export interface ChatViewProps {
   className?: string;
