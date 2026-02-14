@@ -1,5 +1,4 @@
-import React from 'react';
-import { Power, RefreshCw } from 'lucide-react';
+import { Power, RefreshCw, History } from 'lucide-react';
 import { Button } from '@/components/atoms/button';
 import { cn } from '@/utils';
 import { ModelSelector } from '@/components/molecules/ModelSelector';
@@ -16,6 +15,7 @@ export interface ChatHeaderProps {
   onModelChange: (modelId: string) => void;
   onUnload: () => void;
   onRefresh: () => void;
+  onHistoryClick: () => void;
 }
 
 export function ChatHeader({
@@ -30,6 +30,7 @@ export function ChatHeader({
   onModelChange,
   onUnload,
   onRefresh,
+  onHistoryClick,
 }: ChatHeaderProps) {
   return (
     <div className={cn('flex gap-2 items-center p-3 border-b bg-muted/30', className)}>
@@ -53,6 +54,9 @@ export function ChatHeader({
           <RefreshCw className={cn('h-4 w-4', loadingText && 'animate-spin')} />
         </Button>
       )}
+      <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={onHistoryClick} title="View History">
+        <History className="h-4 w-4" />
+      </Button>
     </div>
   );
 }

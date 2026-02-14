@@ -24,6 +24,10 @@ export enum MessageAction {
   // Misc
   START = 'start',
   PING = 'ping',
+
+  // Conversation Management
+  GET_CONVERSATION_LIST = 'getConversationList',
+  DELETE_CONVERSATION = 'deleteConversation',
 }
 
 /** Indexing status states */

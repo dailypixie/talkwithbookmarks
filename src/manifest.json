@@ -14,10 +14,10 @@
   },
   "action": {
     "default_title": "Talk with Bookmarks",
-    "default_popup": "./pages/popup/popup.html"
+    "default_popup": "./entrypoints/popup/popup.html"
   },
   "side_panel": {
-    "default_path": "./pages/sidepanel/sidepanel.html"
+    "default_path": "./entrypoints/sidepanel/sidepanel.html"
   },
   "permissions": [
     "storage",
@@ -37,14 +37,14 @@
         "<all_urls>"
       ],
       "js": [
-        "./pages/bubble/content.ts"
+        "./entrypoints/bubble/content.ts"
       ]
     }
   ],
   "web_accessible_resources": [
     {
       "resources": [
-        "./pages/offscreen/offscreen.html",
+        "./entrypoints/offscreen/offscreen.html",
         "*.css",
         "*.js",
         "assets/*"

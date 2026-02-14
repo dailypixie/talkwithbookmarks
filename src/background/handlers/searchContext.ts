@@ -81,6 +81,18 @@ export async function handleSearchContext(message: { query?: string; topK?: numb
     // Use scored results when we have any with score > 0; otherwise inject fallback chunks
     // so context is still populated (chunks are always injected when available).
     const withScore = scored.filter((s) => s.score > 0).slice(0, topK);
+
+    // If query is provided, we only want relevant results
+    if (query) {
+      return {
+        results: withScore.map(({ slice }) => ({
+          title: slice.title ?? '',
+          url: slice.url ?? '',
+          text: slice.text ?? '',
+        })),
+      };
+    }
+
     const fallback = scored
       .sort((a, b) => a.slice.url.localeCompare(b.slice.url) || (a.slice.position ?? 0) - (b.slice.position ?? 0))
       .slice(0, topK);

@@ -122,6 +122,15 @@ export async function createConversation(title: string, url?: string): Promise<n
   return await currentDb().conversations.add({ title, url, updatedAt: Date.now() });
 }
 
+export async function getConversations(limit = 20, offset = 0): Promise<Conversation[]> {
+  return await currentDb()
+    .conversations.orderBy('updatedAt')
+    .reverse()
+    .offset(offset)
+    .limit(limit)
+    .toArray();
+}
+
 export async function addMessage(
   conversationId: number,
   role: 'user' | 'assistant',

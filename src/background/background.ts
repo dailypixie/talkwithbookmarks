@@ -18,7 +18,7 @@ import {
   handleGetCachedModels,
   handleStop,
 } from '@/background/handlers/model';
-import { handleChat, handleGetHistory } from '@/background/handlers/chat';
+import { handleChat, handleGetHistory, handleGetConversations } from '@/background/handlers/chat';
 import { handleSearchContext } from '@/background/handlers/searchContext';
 import { handleGetPageSummary, handleGenerateSummary } from '@/background/handlers/summary';
 
@@ -99,6 +99,11 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
       }
       if (message.action === 'generateSummary') {
         sendResponse(await handleGenerateSummary(message.url, message.content, message.title));
+        return;
+      }
+
+      if (message.action === MessageAction.GET_CONVERSATION_LIST) {
+        sendResponse(await handleGetConversations(message.limit, message.offset));
         return;
       }
 

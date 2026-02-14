@@ -2,7 +2,7 @@ import * as DbModule from '@/background/db';
 import { sendMessageToOffscreenWithRetry } from '@/background/offscreen';
 import { backgroundLogger as logger } from '@/utils/logger';
 import { Roles } from '@/utils/types';
-import type { Message, Source } from '@/utils/types';
+import type { Message, Source, Conversation } from '@/utils/types';
 
 export async function handleChat(
   message: {
@@ -105,5 +105,18 @@ export async function handleGetHistory(
   } catch (e) {
     logger.error('GetHistory error', e as Error);
     return { messages: [], error: (e as Error).message };
+  }
+}
+
+export async function handleGetConversations(
+  limit = 20,
+  offset = 0
+): Promise<{ conversations: Conversation[]; error?: string }> {
+  try {
+    const convers = await DbModule.getConversations(limit, offset);
+    return { conversations: convers };
+  } catch (e) {
+    logger.error('GetConversations error', e as Error);
+    return { conversations: [], error: (e as Error).message };
   }
 }

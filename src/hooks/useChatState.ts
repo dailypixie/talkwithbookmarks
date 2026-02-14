@@ -15,6 +15,7 @@ export interface UseChatStateResult {
   timestamp: string;
   handleSend: (value: string) => Promise<void>;
   handleStop: () => Promise<void>;
+  loadHistory: () => Promise<void>;
 }
 
 export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams): UseChatStateResult {
@@ -175,5 +176,6 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
     timestamp,
     handleSend,
     handleStop,
+    loadHistory,
   };
 }

@@ -38,7 +38,7 @@ export async function ensureOffscreen(): Promise<void> {
       }
     ).offscreen;
     await chromeOffscreen.createDocument({
-      url: 'pages/offscreen/offscreen.html',
+      url: 'entrypoints/offscreen/offscreen.html',
       reasons: ['WORKERS'],
       justification: 'Run Web-LLM for AI inference',
     });

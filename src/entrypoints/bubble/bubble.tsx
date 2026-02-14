@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import BubbleApp from '@/pages/bubble/BubbleApp';
+import BubbleApp from '@/entrypoints/bubble/BubbleApp';
 
 const HOST_ID = 'talkwithbookmarks-bubble-host';
 

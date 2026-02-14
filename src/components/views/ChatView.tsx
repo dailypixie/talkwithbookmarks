@@ -1,6 +1,8 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 import { cn } from '@/utils';
+import { Conversation } from '@/utils/types';
+import { ConversationHistory } from '@/components/views/ConversationHistory';
 
 import { ChatInputForm } from '@/components/molecules/ChatInputForm';
 import { ChatTimestamp } from '@/components/molecules/ChatTimestamp';
@@ -19,6 +21,7 @@ export interface ChatInterfaceProps {
 
 export function ChatInterface({ className, container }: ChatInterfaceProps) {
   const messageListRef = useRef<MessageListHandle>(null);
+  const [showHistory, setShowHistory] = useState(false);
   const {
     models,
     modelsError,
@@ -33,12 +36,36 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
     refreshModels,
   } = useModelState();
 
-  const { isGenerating, chatLoadingText, timestamp, handleSend, handleStop } = useChatState({
+  const { isGenerating, chatLoadingText, timestamp, handleSend, handleStop, loadHistory } = useChatState({
     messageListRef,
     modelLoaded,
   });
 
   const loadingText = chatLoadingText || modelLoadingText;
+
+  const handleSelectConversation = async (conversation: Conversation) => {
+    if (conversation.id) {
+      await chrome.storage.local.set({ activeConversationId: conversation.id });
+      await loadHistory();
+      setShowHistory(false);
+    }
+  };
+
+  const handleNewChat = async () => {
+    await chrome.storage.local.remove('activeConversationId');
+    messageListRef.current?.setMessages([]);
+    setShowHistory(false);
+  };
+
+  if (showHistory) {
+    return (
+      <ConversationHistory
+        onSelectConversation={handleSelectConversation}
+        onNewChat={handleNewChat}
+        onBack={() => setShowHistory(false)}
+      />
+    );
+  }
 
   return (
     <div className={cn('flex flex-col h-full bg-background text-foreground font-sans', className)}>
@@ -54,6 +81,7 @@ export function ChatInterface({ className, container }: ChatInterfaceProps) {
         onModelChange={loadModel}
         onUnload={unloadModel}
         onRefresh={refreshModels}
+        onHistoryClick={() => setShowHistory(true)}
       />
       {modelsError && <StatusDisplay type="error" message={modelsError} onRetry={refreshModels} className="mb-2" />}
 

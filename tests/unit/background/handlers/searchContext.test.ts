@@ -130,7 +130,8 @@ describe('handleSearchContext', () => {
 
     const result = await handleSearchContext({ query: 'xyznonexistent', topK: 5 });
 
-    expect(result.results!.length).toBeGreaterThan(0);
+    // Updated behavior: if query doesn't match anything, we return empty results instead of fallback
+    expect(result.results!.length).toBe(0);
     expect(result.results).toBeDefined();
   });
 
