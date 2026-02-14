@@ -22,7 +22,9 @@ export function IndexingControls({ className, status, isLoading, onStartIndexing
             {isLoading ? 'Starting...' : 'Start Indexing'}
           </Button>
         )}
-        {status === IndexingStatus.DONE && <p className="text-sm text-green-700 font-medium">Indexing complete.</p>}
+        {status === IndexingStatus.DONE && (
+          <p className="text-sm text-green-600 dark:text-green-400 font-medium">Indexing complete.</p>
+        )}
         {status === IndexingStatus.INDEXING && (
           <Button onClick={onPause} variant="outline" className="flex-1">
             Pause

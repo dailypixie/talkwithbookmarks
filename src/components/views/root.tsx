@@ -1,7 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import MainView from '@/components/views/MainView';
+import { initTheme } from '@/utils/theme';
 import '@/globals.css';
+
+initTheme();
 
 const container = document.getElementById('root');
 if (container) {

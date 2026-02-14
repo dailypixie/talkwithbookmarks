@@ -27,3 +27,4 @@ export * from './html';
 export * from './logger';
 export * from './constants';
 export * from './types';
+export * from './theme';
