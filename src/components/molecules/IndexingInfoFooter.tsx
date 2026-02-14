@@ -5,13 +5,9 @@ export interface IndexingInfoFooterProps {
   children?: React.ReactNode;
 }
 
-const DEFAULT_MESSAGE =
-  'Bookmarks are downloaded and split into semantic chunks for easy processing.';
+const DEFAULT_MESSAGE = 'Bookmarks are downloaded and split into semantic chunks for easy processing.';
 
-export function IndexingInfoFooter({
-  className,
-  children = DEFAULT_MESSAGE,
-}: IndexingInfoFooterProps) {
+export function IndexingInfoFooter({ className, children = DEFAULT_MESSAGE }: IndexingInfoFooterProps) {
   return (
     <div className={`text-xs text-gray-600 text-center ${className ?? ''}`}>
       <p>{children}</p>

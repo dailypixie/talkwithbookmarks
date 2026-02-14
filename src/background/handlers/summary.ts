@@ -22,13 +22,11 @@ export async function handleGenerateSummary(
   title: string
 ): Promise<{ summary: string | null; summaryModel?: string; error?: string }> {
   try {
-    const statusResponse = await sendMessageToOffscreenWithRetry({ action: 'offscreen_getStatus' }) as { currentModel?: string };
+    const statusResponse = (await sendMessageToOffscreenWithRetry({ action: 'offscreen_getStatus' })) as { currentModel?: string };
     const currentModel = statusResponse?.currentModel;
 
     const truncatedContent =
-      content.length > SUMMARY_CONFIG.MAX_CONTENT_LENGTH
-        ? content.slice(0, SUMMARY_CONFIG.MAX_CONTENT_LENGTH) + '...'
-        : content;
+      content.length > SUMMARY_CONFIG.MAX_CONTENT_LENGTH ? content.slice(0, SUMMARY_CONFIG.MAX_CONTENT_LENGTH) + '...' : content;
 
     const prompt = `/no_think
 Summarize this webpage in 2-3 concise paragraphs. Focus on the main points and key takeaways.
@@ -41,10 +39,10 @@ ${truncatedContent}
 
 Summary:`;
 
-    const response = await sendMessageToOffscreenWithRetry({
+    const response = (await sendMessageToOffscreenWithRetry({
       action: 'offscreen_chat',
       messages: [{ role: 'user', content: prompt }],
-    }) as { response?: string; error?: string };
+    })) as { response?: string; error?: string };
 
     if (response?.response) {
       const summary = response.response.trim();

@@ -139,12 +139,7 @@ export class SimplePipeline {
         await this.processStage(stage, processor, stageItems);
       }
 
-      logger.info(
-        items.length === 0
-          ? 'Pipeline completed (no items were queued).'
-          : 'Pipeline completed successfully',
-        this.metrics
-      );
+      logger.info(items.length === 0 ? 'Pipeline completed (no items were queued).' : 'Pipeline completed successfully', this.metrics);
       pipelineEvents.dispatchEvent(
         new CustomEvent<PipelineEvent>('pipeline-event', {
           detail: {
@@ -211,7 +206,12 @@ export class SimplePipeline {
       if (active.length > 0) {
         await Promise.race(active);
         active.splice(
-          active.findIndex((p) => p.then(() => true, () => true)),
+          active.findIndex((p) =>
+            p.then(
+              () => true,
+              () => true
+            )
+          ),
           1
         );
       }
@@ -259,10 +259,7 @@ export class SimplePipeline {
       }
 
       item.status = StageItemStatus.COMPLETED;
-      item.queueStatus =
-        result.stage === PipelineStage.DOWNLOAD
-          ? StageItemQueueStatus.PROCESSED
-          : StageItemQueueStatus.CHUNKED;
+      item.queueStatus = result.stage === PipelineStage.DOWNLOAD ? StageItemQueueStatus.PROCESSED : StageItemQueueStatus.CHUNKED;
 
       this.metrics.itemsIndexed++;
       logger.debug(`Item processed: ${item.url}`);

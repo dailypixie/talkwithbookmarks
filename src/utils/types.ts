@@ -191,15 +191,7 @@ export interface DataSource {
 
 /** Pipeline events for progress reporting */
 export interface PipelineEvent {
-  type:
-  | 'started'
-  | 'progress'
-  | 'item-completed'
-  | 'stage-completed'
-  | 'paused'
-  | 'resumed'
-  | 'error'
-  | 'completed';
+  type: 'started' | 'progress' | 'item-completed' | 'stage-completed' | 'paused' | 'resumed' | 'error' | 'completed';
   stage?: PipelineStage;
   progress?: MultiStageProgress;
   itemId?: string;
@@ -267,4 +259,3 @@ export interface ImportOptions {
   replace: boolean;
   onProgress?: (progress: number) => void;
 }
-

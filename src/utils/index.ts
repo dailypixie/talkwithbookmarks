@@ -3,10 +3,7 @@
  */
 
 export function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<never>((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
-  ]);
+  return Promise.race([promise, new Promise<never>((_, reject) => setTimeout(() => reject(new Error(message)), ms))]);
 }
 
 export function isThinking(text: string): boolean {
@@ -24,7 +21,7 @@ export function cleanContent(content: string): string {
   c = c.replace(/\n\nFocus primarily on the Current Page Content\.$/, '');
   c = c.replace(/\n\nAnswer:$/, '');
   return c.trim();
-};
+}
 
 export * from './html';
 export * from './logger';

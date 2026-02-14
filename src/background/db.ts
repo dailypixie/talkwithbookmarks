@@ -38,7 +38,10 @@ export const db = new BookmarksDB();
 // Initialize the singleton with the default database instance only if not already set
 try {
   const svc = DatabaseService.getInstance();
-  if (typeof (svc as { isInitialized?: () => boolean }).isInitialized === 'function' && !(svc as { isInitialized: () => boolean }).isInitialized()) {
+  if (
+    typeof (svc as { isInitialized?: () => boolean }).isInitialized === 'function' &&
+    !(svc as { isInitialized: () => boolean }).isInitialized()
+  ) {
     svc.setDatabase(db);
   }
 } catch {

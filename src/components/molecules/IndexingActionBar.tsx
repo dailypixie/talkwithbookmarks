@@ -10,14 +10,7 @@ export interface IndexingActionBarProps {
   onResume: () => void;
 }
 
-export function IndexingActionBar({
-  className,
-  status,
-  isLoading,
-  onStartIndexing,
-  onPause,
-  onResume,
-}: IndexingActionBarProps) {
+export function IndexingActionBar({ className, status, isLoading, onStartIndexing, onPause, onResume }: IndexingActionBarProps) {
   return (
     <div className={`flex gap-2 ${className ?? ''}`}>
       {status === IndexingStatus.IDLE && (
@@ -29,22 +22,14 @@ export function IndexingActionBar({
           {isLoading ? 'Starting...' : 'Start Indexing'}
         </button>
       )}
-      {status === IndexingStatus.DONE && (
-        <p className="text-sm text-green-700 font-medium">Indexing complete.</p>
-      )}
+      {status === IndexingStatus.DONE && <p className="text-sm text-green-700 font-medium">Indexing complete.</p>}
       {status === IndexingStatus.INDEXING && (
-        <button
-          onClick={onPause}
-          className="flex-1 bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition"
-        >
+        <button onClick={onPause} className="flex-1 bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition">
           Pause
         </button>
       )}
       {status === IndexingStatus.PAUSED && (
-        <button
-          onClick={onResume}
-          className="flex-1 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-        >
+        <button onClick={onResume} className="flex-1 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
           Resume
         </button>
       )}

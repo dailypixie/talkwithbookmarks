@@ -40,11 +40,7 @@ function escapeRegex(s: string): string {
 /**
  * Search stored chunks (slices) by query and return top results for RAG context.
  */
-export async function handleSearchContext(message: {
-  query?: string;
-  topK?: number;
-  url?: string;
-}): Promise<SearchContextResponse> {
+export async function handleSearchContext(message: { query?: string; topK?: number; url?: string }): Promise<SearchContextResponse> {
   const query = (message.query ?? '').trim();
   const topK = Math.min(Math.max(1, message.topK ?? 3), 20);
   const url = message.url;
@@ -86,11 +82,7 @@ export async function handleSearchContext(message: {
     // so context is still populated (chunks are always injected when available).
     const withScore = scored.filter((s) => s.score > 0).slice(0, topK);
     const fallback = scored
-      .sort(
-        (a, b) =>
-          a.slice.url.localeCompare(b.slice.url) ||
-          (a.slice.position ?? 0) - (b.slice.position ?? 0)
-      )
+      .sort((a, b) => a.slice.url.localeCompare(b.slice.url) || (a.slice.position ?? 0) - (b.slice.position ?? 0))
       .slice(0, topK);
     const top = withScore.length > 0 ? withScore : fallback;
 

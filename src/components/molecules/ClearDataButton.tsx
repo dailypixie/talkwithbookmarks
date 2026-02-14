@@ -6,11 +6,7 @@ export interface ClearDataButtonProps {
   label?: string;
 }
 
-export function ClearDataButton({
-  className,
-  onClick,
-  label = 'Clear Data',
-}: ClearDataButtonProps) {
+export function ClearDataButton({ className, onClick, label = 'Clear Data' }: ClearDataButtonProps) {
   return (
     <button
       onClick={onClick}

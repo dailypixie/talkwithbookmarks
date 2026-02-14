@@ -4,13 +4,16 @@ import { backgroundLogger as logger } from '@/utils/logger';
 import { Roles } from '@/utils/types';
 import type { Message, Source } from '@/utils/types';
 
-export async function handleChat(message: {
-  messages?: Partial<Message>[];
-  url?: string;
-  originalContent?: string;
-  context?: string;
-  sources?: Source[];
-}, sender: chrome.runtime.MessageSender): Promise<{ response?: string; error?: string; conversationId?: number }> {
+export async function handleChat(
+  message: {
+    messages?: Partial<Message>[];
+    url?: string;
+    originalContent?: string;
+    context?: string;
+    sources?: Source[];
+  },
+  sender: chrome.runtime.MessageSender
+): Promise<{ response?: string; error?: string; conversationId?: number }> {
   if (!message?.messages?.length) {
     throw new Error('No messages provided');
   }
@@ -53,11 +56,7 @@ export async function handleChat(message: {
       response = { error: String(e) };
     }
 
-    const assistantContent = response.response?.trim()
-      ? response.response
-      : response.error
-        ? `Error: ${response.error}`
-        : '';
+    const assistantContent = response.response?.trim() ? response.response : response.error ? `Error: ${response.error}` : '';
     if (assistantContent) {
       await DbModule.addMessage(conversationId, 'assistant', assistantContent, undefined, message.sources);
     }
@@ -69,7 +68,9 @@ export async function handleChat(message: {
   }
 }
 
-export async function handleGetHistory(url: string | undefined): Promise<{ messages: { role: string; content: string; sources?: Source[] }[]; error?: string }> {
+export async function handleGetHistory(
+  url: string | undefined
+): Promise<{ messages: { role: string; content: string; sources?: Source[] }[]; error?: string }> {
   try {
     let conversationId: number | undefined;
     const isExtensionUrl = !url || url.includes('chrome-extension:');
