@@ -1,0 +1,5 @@
+ls-lint:
+  .ts:
+    - name-format: camelCase
+  .tsx:
+    - name-format: PascalCase

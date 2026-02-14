@@ -1,0 +1,40 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9D4EDD;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5A189A;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="128" cy="128" r="128" fill="#F8F7FF"/>
+
+  <!-- Bookmark shape -->
+  <g>
+    <!-- Main bookmark rectangle -->
+    <rect x="60" y="40" width="80" height="140" rx="4" fill="url(#purpleGradient)"/>
+
+    <!-- Bookmark notch at bottom -->
+    <polygon points="80,180 96,160 112,180" fill="url(#purpleGradient)"/>
+  </g>
+
+  <!-- Chat bubble representing AI conversation -->
+  <g>
+    <!-- Chat bubble circle -->
+    <circle cx="150" cy="150" r="32" fill="#5A189A" opacity="0.9"/>
+
+    <!-- Chat bubble pointer -->
+    <polygon points="145,180 135,188 150,175" fill="#5A189A" opacity="0.9"/>
+
+    <!-- Dots representing conversation (..•) -->
+    <circle cx="138" cy="148" r="3" fill="white"/>
+    <circle cx="150" cy="148" r="3" fill="white"/>
+    <circle cx="162" cy="148" r="3" fill="white"/>
+  </g>
+
+  <!-- Subtle sparkle effect for "AI" -->
+  <g opacity="0.6">
+    <circle cx="75" cy="65" r="2.5" fill="#9D4EDD"/>
+    <circle cx="155" cy="65" r="2.5" fill="#9D4EDD"/>
+  </g>
+</svg>
