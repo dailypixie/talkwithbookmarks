@@ -70,7 +70,18 @@ export function IndexingInterface() {
     }
   };
 
-  const handleClear = async () => {
+  const handleClearIndexedData = async () => {
+    if (confirm('Are you sure you want to clear all data?')) {
+      try {
+        await Runtime.clearIndexedData();
+        setProgress({ total: 0, processed: 0, status: IndexingStatus.IDLE });
+      } catch (error) {
+        console.error('Error clearing data:', error);
+      }
+    }
+  };
+
+  const handleClearAllData = async () => {
     if (confirm('Are you sure you want to clear all data?')) {
       try {
         await Runtime.clearAllData();
@@ -80,6 +91,8 @@ export function IndexingInterface() {
       }
     }
   };
+
+
 
   const handleQueueUrls = async () => {
     const urls = manualUrls
@@ -129,7 +142,8 @@ export function IndexingInterface() {
           onStartIndexing={handleStartIndexing}
           onPause={handlePause}
           onResume={handleResume}
-          onClear={handleClear}
+          onClearIndexedData={handleClearIndexedData}
+          onClearAllData={handleClearAllData}
         />
       </div>
 

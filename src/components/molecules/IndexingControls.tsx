@@ -10,10 +10,11 @@ export interface IndexingControlsProps {
   onStartIndexing: () => void;
   onPause: () => void;
   onResume: () => void;
-  onClear: () => void;
+  onClearIndexedData: () => void;
+  onClearAllData: () => void;
 }
 
-export function IndexingControls({ className, status, isLoading, onStartIndexing, onPause, onResume, onClear }: IndexingControlsProps) {
+export function IndexingControls({ className, status, isLoading, onStartIndexing, onPause, onResume, onClearIndexedData, onClearAllData }: IndexingControlsProps) {
   return (
     <div className={cn('flex flex-col gap-2', className)}>
       <div className="flex gap-2">
@@ -34,8 +35,11 @@ export function IndexingControls({ className, status, isLoading, onStartIndexing
           </Button>
         )}
       </div>
-      <Button onClick={onClear} variant="destructive" className="w-full">
-        Clear Data
+      <Button onClick={onClearIndexedData} variant="secondary" className="w-full mb-2">
+        Clear Indexed Data
+      </Button>
+      <Button onClick={onClearAllData} variant="destructive" className="w-full">
+        Clear All Data
       </Button>
     </div>
   );
