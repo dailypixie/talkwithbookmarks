@@ -4,6 +4,7 @@
 
 import { handleGetPageSummary, handleGenerateSummary } from '@/entrypoints/background/handlers/summary';
 import { SUMMARY_CONFIG } from '@/utils/constants';
+import { MessageAction } from '@/utils/types';
 
 jest.mock('@/entrypoints/background/db', () => ({
   getPageByUrl: jest.fn(),
@@ -82,11 +83,11 @@ describe('handleGenerateSummary', () => {
     const result = await handleGenerateSummary('https://example.com', 'Page content here', 'Example Title');
 
     expect(mockSendToOffscreen).toHaveBeenCalledTimes(2);
-    expect(mockSendToOffscreen).toHaveBeenNthCalledWith(1, { action: 'offscreen_getStatus' });
+    expect(mockSendToOffscreen).toHaveBeenNthCalledWith(1, { action: MessageAction.OFFSCREEN_GET_STATUS });
     expect(mockSendToOffscreen).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
-        action: 'offscreen_chat',
+        action: MessageAction.OFFSCREEN_CHAT,
         messages: expect.arrayContaining([
           expect.objectContaining({
             role: 'user',
@@ -107,7 +108,7 @@ describe('handleGenerateSummary', () => {
 
     await handleGenerateSummary('https://example.com', longContent, 'Title');
 
-    const chatCall = mockSendToOffscreen.mock.calls.find((c) => c[0].action === 'offscreen_chat');
+    const chatCall = mockSendToOffscreen.mock.calls.find((c) => c[0].action === MessageAction.OFFSCREEN_CHAT);
     expect(chatCall).toBeDefined();
     const prompt = (chatCall![0] as any).messages[0].content;
     expect(prompt.length).toBeLessThanOrEqual(SUMMARY_CONFIG.MAX_CONTENT_LENGTH + 500);

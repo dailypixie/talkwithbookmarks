@@ -3,6 +3,7 @@
  */
 
 import { RECOMMENDED_MODELS } from '@/utils/constants';
+import { MessageAction } from '@/utils/types';
 import {
   handleGetRecommendedModels,
   handleLoadModel,
@@ -42,7 +43,7 @@ describe('model handlers', () => {
       const result = await handleLoadModel('test-model-id');
       expect((global.chrome as any).storage.local.set).toHaveBeenCalledWith({ selectedModel: 'test-model-id' });
       expect(mockSendToOffscreen).toHaveBeenCalledWith({
-        action: 'offscreen_loadModel',
+        action: MessageAction.OFFSCREEN_LOAD_MODEL,
         modelId: 'test-model-id',
       });
       expect(result).toEqual({ success: true });
@@ -66,7 +67,7 @@ describe('model handlers', () => {
       mockSendToOffscreen.mockResolvedValue({ success: true });
       const result = await handleUnloadModel();
       expect((global.chrome as any).storage.local.remove).toHaveBeenCalledWith('selectedModel');
-      expect(mockSendToOffscreen).toHaveBeenCalledWith({ action: 'offscreen_unload' });
+      expect(mockSendToOffscreen).toHaveBeenCalledWith({ action: MessageAction.OFFSCREEN_UNLOAD });
       expect(result).toEqual({ success: true });
     });
 
@@ -87,7 +88,7 @@ describe('model handlers', () => {
     it('returns status from offscreen', async () => {
       mockSendToOffscreen.mockResolvedValue({ loaded: true, currentModel: 'model-x' });
       const result = await handleGetModelStatus();
-      expect(mockSendToOffscreen).toHaveBeenCalledWith({ action: 'offscreen_getStatus' });
+      expect(mockSendToOffscreen).toHaveBeenCalledWith({ action: MessageAction.OFFSCREEN_GET_STATUS });
       expect(result).toEqual({ loaded: true, currentModel: 'model-x' });
     });
 
@@ -108,7 +109,7 @@ describe('model handlers', () => {
     it('returns models array from offscreen', async () => {
       mockSendToOffscreen.mockResolvedValue(['model1', 'model2']);
       const result = await handleGetModels();
-      expect(mockSendToOffscreen).toHaveBeenCalledWith({ action: 'offscreen_getModels' });
+      expect(mockSendToOffscreen).toHaveBeenCalledWith({ action: MessageAction.OFFSCREEN_GET_MODELS });
       expect(result).toEqual(['model1', 'model2']);
     });
 
@@ -129,7 +130,7 @@ describe('model handlers', () => {
     it('returns cached models from offscreen', async () => {
       mockSendToOffscreen.mockResolvedValue({ cachedModels: ['cached1'] });
       const result = await handleGetCachedModels();
-      expect(mockSendToOffscreen).toHaveBeenCalledWith({ action: 'offscreen_getCachedModels' });
+      expect(mockSendToOffscreen).toHaveBeenCalledWith({ action: MessageAction.OFFSCREEN_GET_CACHED_MODELS });
       expect(result).toEqual({ cachedModels: ['cached1'] });
     });
 
@@ -150,7 +151,7 @@ describe('model handlers', () => {
     it('sends stop to offscreen and returns success', async () => {
       mockSendToOffscreen.mockResolvedValue(undefined);
       const result = await handleStop();
-      expect(mockSendToOffscreen).toHaveBeenCalledWith({ action: 'offscreen_stop' });
+      expect(mockSendToOffscreen).toHaveBeenCalledWith({ action: MessageAction.OFFSCREEN_STOP });
       expect(result).toEqual({ success: true });
     });
 

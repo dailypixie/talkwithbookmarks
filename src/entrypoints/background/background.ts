@@ -37,7 +37,7 @@ try {
 }
 
 // Forward/bubble stream and model events (handled directly by extension UIs)
-const FORWARD_ACTIONS = ['chatStream', 'modelProgress', 'modelLoaded', 'modelUnloaded'];
+const FORWARD_ACTIONS = [MessageAction.CHAT_STREAM, MessageAction.MODEL_PROGRESS, MessageAction.MODEL_LOADED, MessageAction.MODEL_UNLOADED];
 
 /**
  * Handle messages from popup and content scripts
@@ -54,51 +54,51 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
         return;
       }
       // Model & chat actions
-      if (message.action === 'getRecommendedModels') {
+      if (message.action === MessageAction.GET_RECOMMENDED_MODELS) {
         sendResponse(handleGetRecommendedModels());
         return;
       }
-      if (message.action === 'loadModel') {
+      if (message.action === MessageAction.LOAD_MODEL) {
         sendResponse(await handleLoadModel(message.modelId));
         return;
       }
-      if (message.action === 'unloadModel') {
+      if (message.action === MessageAction.UNLOAD_MODEL) {
         sendResponse(await handleUnloadModel());
         return;
       }
-      if (message.action === 'getModelStatus') {
+      if (message.action === MessageAction.GET_MODEL_STATUS) {
         sendResponse(await handleGetModelStatus());
         return;
       }
-      if (message.action === 'getModels') {
+      if (message.action === MessageAction.GET_MODELS) {
         sendResponse(await handleGetModels());
         return;
       }
-      if (message.action === 'getCachedModels') {
+      if (message.action === MessageAction.GET_CACHED_MODELS) {
         sendResponse(await handleGetCachedModels());
         return;
       }
-      if (message.action === 'stop') {
+      if (message.action === MessageAction.STOP) {
         sendResponse(await handleStop());
         return;
       }
-      if (message.action === 'chat') {
+      if (message.action === MessageAction.CHAT) {
         sendResponse(await handleChat(message, sender));
         return;
       }
-      if (message.action === 'getHistory') {
+      if (message.action === MessageAction.GET_HISTORY) {
         sendResponse(await handleGetHistory(message.url, message.conversationId));
         return;
       }
-      if (message.action === 'searchContext') {
+      if (message.action === MessageAction.SEARCH_CONTEXT) {
         sendResponse(await handleSearchContext(message));
         return;
       }
-      if (message.action === 'getPageSummary') {
+      if (message.action === MessageAction.GET_PAGE_SUMMARY) {
         sendResponse(await handleGetPageSummary(message.url));
         return;
       }
-      if (message.action === 'generateSummary') {
+      if (message.action === MessageAction.GENERATE_SUMMARY) {
         sendResponse(await handleGenerateSummary(message.url, message.content, message.title));
         return;
       }

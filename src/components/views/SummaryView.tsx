@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SUMMARY_CONFIG } from '@/utils/constants';
-import { cleanContent, cn, withTimeout } from '@/utils';
+import { cleanContent, cn, MessageAction, withTimeout } from '@/utils';
 import { SummaryHeader } from '@/components/molecules/SummaryHeader';
 import { SummaryCard } from '@/components/molecules/SummaryCard';
 import { NoPageSelected } from '@/components/molecules/NoPageSelected';
@@ -27,7 +27,7 @@ export function SummaryInterface({ className, isActive = false }: SummaryInterfa
   useEffect(() => {
     const checkModel = async () => {
       try {
-        const res = await chrome.runtime.sendMessage({ action: 'getModelStatus' });
+        const res = await chrome.runtime.sendMessage({ action: MessageAction.GET_MODEL_STATUS });
         setModelLoaded(res?.loaded ?? false);
       } catch (e) {
         console.error('Failed to check model status:', e);
@@ -35,8 +35,8 @@ export function SummaryInterface({ className, isActive = false }: SummaryInterfa
     };
     checkModel();
     const handleMessage = (msg: { action: string }) => {
-      if (msg.action === 'modelLoaded') setModelLoaded(true);
-      else if (msg.action === 'modelUnloaded') setModelLoaded(false);
+      if (msg.action === MessageAction.MODEL_LOADED) setModelLoaded(true);
+      else if (msg.action === MessageAction.MODEL_UNLOADED) setModelLoaded(false);
     };
     chrome.runtime.onMessage.addListener(handleMessage);
     return () => chrome.runtime.onMessage.removeListener(handleMessage);
@@ -71,7 +71,7 @@ export function SummaryInterface({ className, isActive = false }: SummaryInterfa
       setIsLoading(true);
       setError(null);
       try {
-        const response = await chrome.runtime.sendMessage({ action: 'getPageSummary', url: pageUrl });
+        const response = await chrome.runtime.sendMessage({ action: MessageAction.GET_PAGE_SUMMARY, url: pageUrl });
         if (response?.summary) {
           setSummary(cleanContent(response.summary ?? ''));
           setSummaryModel(response.summaryModel ?? null);
@@ -123,7 +123,7 @@ export function SummaryInterface({ className, isActive = false }: SummaryInterfa
 
       const response = await withTimeout(
         chrome.runtime.sendMessage({
-          action: 'generateSummary',
+          action: MessageAction.GENERATE_SUMMARY,
           url: pageUrl,
           content,
           title: pageTitle,
@@ -162,7 +162,7 @@ export function SummaryInterface({ className, isActive = false }: SummaryInterfa
 
       const response = await withTimeout(
         chrome.runtime.sendMessage({
-          action: 'generateSummary',
+          action: MessageAction.GENERATE_SUMMARY,
           url: pageUrl,
           content,
           title: pageTitle,

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { MessageAction } from '@/utils';
 
 export interface UseModelStateResult {
   models: string[];
@@ -30,15 +31,15 @@ export function useModelState(): UseModelStateResult {
     checkModelStatus();
 
     const handleMessage = (msg: { action: string; modelId?: string; progress?: number; text?: string }) => {
-      if (msg.action === 'modelProgress') {
+      if (msg.action === MessageAction.MODEL_PROGRESS) {
         setModelLoadingText(msg.text ?? '');
         setLoadingProgress(msg.progress ?? 0);
-      } else if (msg.action === 'modelLoaded') {
+      } else if (msg.action === MessageAction.MODEL_LOADED) {
         setSelectedModel(msg.modelId ?? '');
         setModelLoaded(true);
         setModelLoadingText('');
         setLoadingProgress(0);
-      } else if (msg.action === 'modelUnloaded') {
+      } else if (msg.action === MessageAction.MODEL_UNLOADED) {
         setModelLoaded(false);
         setSelectedModel('');
         setModelLoadingText('');
@@ -55,7 +56,7 @@ export function useModelState(): UseModelStateResult {
     try {
       let recs = new Set<string>();
       try {
-        const r = await chrome.runtime.sendMessage({ action: 'getRecommendedModels' });
+        const r = await chrome.runtime.sendMessage({ action: MessageAction.GET_RECOMMENDED_MODELS });
         if (r?.recommended) {
           recs = new Set(Object.values(r.recommended) as string[]);
           setRecommendedModels(recs);
@@ -63,7 +64,7 @@ export function useModelState(): UseModelStateResult {
       } catch {
         // ignore
       }
-      const res = await chrome.runtime.sendMessage({ action: 'getModels' });
+      const res = await chrome.runtime.sendMessage({ action: MessageAction.GET_MODELS });
       if (Array.isArray(res)) {
         const sorted = [...res].sort((a, b) => {
           const isRecA = recs.has(a);
@@ -88,7 +89,7 @@ export function useModelState(): UseModelStateResult {
 
   const fetchCachedModels = async () => {
     try {
-      const res = await chrome.runtime.sendMessage({ action: 'getCachedModels' });
+      const res = await chrome.runtime.sendMessage({ action: MessageAction.GET_CACHED_MODELS });
       if (res?.cachedModels) setCachedModels(new Set(res.cachedModels));
     } catch (e) {
       console.error(e);
@@ -97,7 +98,7 @@ export function useModelState(): UseModelStateResult {
 
   const checkModelStatus = async () => {
     try {
-      const res = await chrome.runtime.sendMessage({ action: 'getModelStatus' });
+      const res = await chrome.runtime.sendMessage({ action: MessageAction.GET_MODEL_STATUS });
       if (res?.loaded) {
         setSelectedModel(res.currentModel ?? '');
         setModelLoaded(true);
@@ -118,7 +119,7 @@ export function useModelState(): UseModelStateResult {
     if (!modelId) return;
     setModelLoadingText('Initializing...');
     try {
-      const res = await chrome.runtime.sendMessage({ action: 'loadModel', modelId });
+      const res = await chrome.runtime.sendMessage({ action: MessageAction.LOAD_MODEL, modelId });
       if (res?.success) {
         setSelectedModel(modelId);
         setModelLoaded(true);
@@ -133,7 +134,7 @@ export function useModelState(): UseModelStateResult {
 
   const unloadModel = async () => {
     try {
-      await chrome.runtime.sendMessage({ action: 'unloadModel' });
+      await chrome.runtime.sendMessage({ action: MessageAction.UNLOAD_MODEL });
       setModelLoaded(false);
       setSelectedModel('');
     } catch (e) {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 
 import { cleanContent, fetchPageContents, getPageUrl, isThinking } from '@/utils';
 import { MessageListHandle } from '@/components/organisms/MessageList';
-import { PageType, Roles, Source } from '@/utils/types';
+import { MessageAction, PageType, Roles, Source } from '@/utils/types';
 
 export interface UseChatStateParams {
   messageListRef: RefObject<MessageListHandle | null>;
@@ -35,13 +35,13 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
     }
 
     const handleMessage = (msg: { action: string; delta?: string }) => {
-      if (msg.action === 'chatStream' && msg.delta) {
+      if (msg.action === MessageAction.CHAT_STREAM && msg.delta) {
         messageListRef.current?.appendAssistantDelta(msg.delta);
         assistantContentRef.current += msg.delta;
         const current = assistantContentRef.current;
         const isCurrentlyThinking = isThinking(current);
         setChatLoadingText(isCurrentlyThinking ? 'Thinking...' : '');
-      } else if (msg.action === 'modelUnloaded') {
+      } else if (msg.action === MessageAction.MODEL_UNLOADED) {
         setIsGenerating(false);
         setChatLoadingText('');
       }
@@ -54,7 +54,7 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
   const loadHistory = async (conversationId?: number) => {
     try {
       const url = await getPageUrl();
-      const res = await chrome.runtime.sendMessage({ action: 'getHistory', url, conversationId });
+      const res = await chrome.runtime.sendMessage({ action: MessageAction.GET_HISTORY, url, conversationId });
       if (res?.messages) {
         const cleaned = res.messages.map((m: { role: string; content: string; sources?: Source[] }) => ({
           role: m.role as Roles,
@@ -99,7 +99,7 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
     let ragContext = '';
     try {
       const searchRes = await chrome.runtime.sendMessage({
-        action: 'searchContext',
+        action: MessageAction.SEARCH_CONTEXT,
         query: userMsg,
         topK: 3,
       });
@@ -149,7 +149,7 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
         type: s.type === 'current_page' ? PageType.CURRENT_PAGE : PageType.BOOKMARK,
       }));
       await chrome.runtime.sendMessage({
-        action: 'chat',
+        action: MessageAction.CHAT,
         messages: [{ role: 'user', content: prompt }],
         originalContent: userMsg,
         url,
@@ -165,7 +165,7 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
   };
 
   const handleStop = async () => {
-    await chrome.runtime.sendMessage({ action: 'stop' });
+    await chrome.runtime.sendMessage({ action: MessageAction.STOP });
     setIsGenerating(false);
     setChatLoadingText('');
   };

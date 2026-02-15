@@ -25,10 +25,41 @@ export enum MessageAction {
   // Misc
   START = 'start',
   PING = 'ping',
+  STOP = 'stop',
 
   // Conversation Management
   GET_CONVERSATION_LIST = 'getConversationList',
   DELETE_CONVERSATION = 'deleteConversation',
+  GET_HISTORY = 'getHistory',
+
+  // Chat
+  CHAT = 'chat',
+  CHAT_STREAM = 'chatStream',
+  SEARCH_CONTEXT = 'searchContext',
+
+  // Summary
+  GET_PAGE_SUMMARY = 'getPageSummary',
+  GENERATE_SUMMARY = 'generateSummary',
+
+  // Model Management
+  GET_MODEL_STATUS = 'getModelStatus',
+  GET_RECOMMENDED_MODELS = 'getRecommendedModels',
+  LOAD_MODEL = 'loadModel',
+  UNLOAD_MODEL = 'unloadModel',
+  GET_MODELS = 'getModels',
+  GET_CACHED_MODELS = 'getCachedModels',
+  MODEL_PROGRESS = 'modelProgress',
+  MODEL_LOADED = 'modelLoaded',
+  MODEL_UNLOADED = 'modelUnloaded',
+
+  // Offscreen
+  OFFSCREEN_LOAD_MODEL = 'offscreen_loadModel',
+  OFFSCREEN_UNLOAD = 'offscreen_unload',
+  OFFSCREEN_GET_STATUS = 'offscreen_getStatus',
+  OFFSCREEN_GET_MODELS = 'offscreen_getModels',
+  OFFSCREEN_GET_CACHED_MODELS = 'offscreen_getCachedModels',
+  OFFSCREEN_CHAT = 'offscreen_chat',
+  OFFSCREEN_STOP = 'offscreen_stop',
 }
 
 /** Indexing status states */

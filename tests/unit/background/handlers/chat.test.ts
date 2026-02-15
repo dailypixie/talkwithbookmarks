@@ -3,7 +3,7 @@
  */
 
 import { handleChat, handleGetHistory } from '@/entrypoints/background/handlers/chat';
-import { Roles } from '@/utils/types';
+import { MessageAction, Roles } from '@/utils/types';
 
 jest.mock('@/entrypoints/background/db', () => ({
   getConversationForUrl: jest.fn(),
@@ -111,7 +111,7 @@ describe('handleChat', () => {
 
     expect(mockSendToOffscreen).toHaveBeenCalledWith(
       expect.objectContaining({
-        action: 'offscreen_chat',
+        action: MessageAction.OFFSCREEN_CHAT,
         messages: [{ role: Roles.USER, content: 'Q' }],
         tabId: 99,
       })

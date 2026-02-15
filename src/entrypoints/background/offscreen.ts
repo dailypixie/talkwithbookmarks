@@ -1,4 +1,5 @@
 import { backgroundLogger as logger } from '@/utils/logger';
+import { MessageAction } from '@/utils/types';
 
 let offscreenCreated = false;
 
@@ -48,7 +49,7 @@ export async function ensureOffscreen(): Promise<void> {
 
     chrome.storage.local.get('selectedModel', (result: { selectedModel?: string }) => {
       if (result.selectedModel) {
-        sendMessageToOffscreenWithRetry({ action: 'offscreen_loadModel', modelId: result.selectedModel }).catch((e) =>
+        sendMessageToOffscreenWithRetry({ action: MessageAction.OFFSCREEN_LOAD_MODEL, modelId: result.selectedModel }).catch((e) =>
           logger.error('Auto-load failed', e as Error)
         );
       }
@@ -67,7 +68,7 @@ export async function ensureOffscreen(): Promise<void> {
 async function waitForOffscreen(maxAttempts = 10): Promise<void> {
   for (let i = 0; i < maxAttempts; i++) {
     try {
-      const response = await chrome.runtime.sendMessage({ action: 'ping' });
+      const response = await chrome.runtime.sendMessage({ action: MessageAction.PING });
       if (response === 'pong') return;
     } catch {
       // retry

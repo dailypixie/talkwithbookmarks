@@ -1,7 +1,7 @@
 import * as DbModule from '@/entrypoints/background/db';
 import { sendMessageToOffscreenWithRetry } from '@/entrypoints/background/offscreen';
 import { backgroundLogger as logger } from '@/utils/logger';
-import { Roles } from '@/utils/types';
+import { MessageAction, Roles } from '@/utils/types';
 import type { Message, Source, Conversation } from '@/utils/types';
 
 export async function handleChat(
@@ -48,7 +48,7 @@ export async function handleChat(
     let response: { response?: string; error?: string } = {};
     try {
       response = (await sendMessageToOffscreenWithRetry({
-        action: 'offscreen_chat',
+        action: MessageAction.OFFSCREEN_CHAT,
         messages: message.messages,
         tabId: sender.tab?.id,
       })) as { response?: string; error?: string };

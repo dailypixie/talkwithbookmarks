@@ -117,12 +117,12 @@ describe('Background message routing', () => {
 
   describe('forward actions', () => {
     it('acknowledges chatStream and returns forwarded: true', async () => {
-      const result = await runListener({ action: 'chatStream' });
+      const result = await runListener({ action: MessageAction.CHAT_STREAM });
       expect(result).toEqual({ forwarded: true });
     });
 
     it('acknowledges modelProgress and returns forwarded: true', async () => {
-      const result = await runListener({ action: 'modelProgress' });
+      const result = await runListener({ action: MessageAction.MODEL_PROGRESS });
       expect(result).toEqual({ forwarded: true });
     });
   });
@@ -130,49 +130,49 @@ describe('Background message routing', () => {
   describe('model actions', () => {
     it('routes getRecommendedModels to handler', async () => {
       mockHandleGetRecommendedModels.mockReturnValue({ recommended: { FAST: 'x', QUALITY: 'y' } });
-      const result = await runListener({ action: 'getRecommendedModels' });
+      const result = await runListener({ action: MessageAction.GET_RECOMMENDED_MODELS });
       expect(mockHandleGetRecommendedModels).toHaveBeenCalled();
       expect(result).toEqual({ recommended: { FAST: 'x', QUALITY: 'y' } });
     });
 
     it('routes loadModel to handler', async () => {
       mockHandleLoadModel.mockResolvedValue({ success: true });
-      const result = await runListener({ action: 'loadModel', modelId: 'test-model' });
+      const result = await runListener({ action: MessageAction.LOAD_MODEL, modelId: 'test-model' });
       expect(mockHandleLoadModel).toHaveBeenCalledWith('test-model');
       expect(result).toEqual({ success: true });
     });
 
     it('routes unloadModel to handler', async () => {
       mockHandleUnloadModel.mockResolvedValue({ success: true });
-      const result = await runListener({ action: 'unloadModel' });
+      const result = await runListener({ action: MessageAction.UNLOAD_MODEL });
       expect(mockHandleUnloadModel).toHaveBeenCalled();
       expect(result).toEqual({ success: true });
     });
 
     it('routes getModelStatus to handler', async () => {
       mockHandleGetModelStatus.mockResolvedValue({ loaded: false });
-      const result = await runListener({ action: 'getModelStatus' });
+      const result = await runListener({ action: MessageAction.GET_MODEL_STATUS });
       expect(mockHandleGetModelStatus).toHaveBeenCalled();
       expect(result).toEqual({ loaded: false });
     });
 
     it('routes getModels to handler', async () => {
       mockHandleGetModels.mockResolvedValue(['model1', 'model2']);
-      const result = await runListener({ action: 'getModels' });
+      const result = await runListener({ action: MessageAction.GET_MODELS });
       expect(mockHandleGetModels).toHaveBeenCalled();
       expect(result).toEqual(['model1', 'model2']);
     });
 
     it('routes getCachedModels to handler', async () => {
       mockHandleGetCachedModels.mockResolvedValue({ cachedModels: [] });
-      const result = await runListener({ action: 'getCachedModels' });
+      const result = await runListener({ action: MessageAction.GET_CACHED_MODELS });
       expect(mockHandleGetCachedModels).toHaveBeenCalled();
       expect(result).toEqual({ cachedModels: [] });
     });
 
     it('routes stop to handler', async () => {
       mockHandleStop.mockResolvedValue({ success: true });
-      const result = await runListener({ action: 'stop' });
+      const result = await runListener({ action: MessageAction.STOP });
       expect(mockHandleStop).toHaveBeenCalled();
       expect(result).toEqual({ success: true });
     });
@@ -182,14 +182,14 @@ describe('Background message routing', () => {
     it('routes chat to handler with message and sender', async () => {
       const sender = { id: 'sender-1', url: 'https://example.com', tab: { id: 1 } };
       mockHandleChat.mockResolvedValue({ success: true });
-      const result = await runListener({ action: 'chat', messages: [], url: 'https://example.com' }, sender);
-      expect(mockHandleChat).toHaveBeenCalledWith({ action: 'chat', messages: [], url: 'https://example.com' }, sender);
+      const result = await runListener({ action: MessageAction.CHAT, messages: [], url: 'https://example.com' }, sender);
+      expect(mockHandleChat).toHaveBeenCalledWith({ action: MessageAction.CHAT, messages: [], url: 'https://example.com' }, sender);
       expect(result).toEqual({ success: true });
     });
 
     it('routes getHistory to handler', async () => {
       mockHandleGetHistory.mockResolvedValue([]);
-      const result = await runListener({ action: 'getHistory', url: 'https://example.com' });
+      const result = await runListener({ action: MessageAction.GET_HISTORY, url: 'https://example.com' });
       expect(mockHandleGetHistory).toHaveBeenCalledWith('https://example.com', undefined);
       expect(result).toEqual([]);
     });
@@ -198,14 +198,14 @@ describe('Background message routing', () => {
   describe('search and summary actions', () => {
     it('routes searchContext to handler', async () => {
       mockHandleSearchContext.mockResolvedValue({ results: [] });
-      const result = await runListener({ action: 'searchContext', query: 'test' });
-      expect(mockHandleSearchContext).toHaveBeenCalledWith({ action: 'searchContext', query: 'test' });
+      const result = await runListener({ action: MessageAction.SEARCH_CONTEXT, query: 'test' });
+      expect(mockHandleSearchContext).toHaveBeenCalledWith({ action: MessageAction.SEARCH_CONTEXT, query: 'test' });
       expect(result).toEqual({ results: [] });
     });
 
     it('routes getPageSummary to handler', async () => {
       mockHandleGetPageSummary.mockResolvedValue({ summary: 'Cached summary' });
-      const result = await runListener({ action: 'getPageSummary', url: 'https://example.com' });
+      const result = await runListener({ action: MessageAction.GET_PAGE_SUMMARY, url: 'https://example.com' });
       expect(mockHandleGetPageSummary).toHaveBeenCalledWith('https://example.com');
       expect(result).toEqual({ summary: 'Cached summary' });
     });
@@ -213,7 +213,7 @@ describe('Background message routing', () => {
     it('routes generateSummary to handler', async () => {
       mockHandleGenerateSummary.mockResolvedValue({ summary: 'Generated summary' });
       const result = await runListener({
-        action: 'generateSummary',
+        action: MessageAction.GENERATE_SUMMARY,
         url: 'https://example.com',
         content: 'page content',
         title: 'Page Title',

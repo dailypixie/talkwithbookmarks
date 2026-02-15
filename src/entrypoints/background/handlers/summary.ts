@@ -2,6 +2,7 @@ import { getPageByUrl, updatePageSummary } from '@/entrypoints/background/db';
 import { sendMessageToOffscreenWithRetry } from '@/entrypoints/background/offscreen';
 import { backgroundLogger as logger } from '@/utils/logger';
 import { SUMMARY_CONFIG } from '@/utils/constants';
+import { MessageAction } from '@/utils/types';
 
 export async function handleGetPageSummary(url: string): Promise<{ summary: string | null; summaryModel?: string; exists: boolean }> {
   try {
@@ -22,7 +23,7 @@ export async function handleGenerateSummary(
   title: string
 ): Promise<{ summary: string | null; summaryModel?: string; error?: string }> {
   try {
-    const statusResponse = (await sendMessageToOffscreenWithRetry({ action: 'offscreen_getStatus' })) as { currentModel?: string };
+    const statusResponse = (await sendMessageToOffscreenWithRetry({ action: MessageAction.OFFSCREEN_GET_STATUS })) as { currentModel?: string };
     const currentModel = statusResponse?.currentModel;
 
     const truncatedContent =
@@ -40,7 +41,7 @@ ${truncatedContent}
 Summary:`;
 
     const response = (await sendMessageToOffscreenWithRetry({
-      action: 'offscreen_chat',
+      action: MessageAction.OFFSCREEN_CHAT,
       messages: [{ role: 'user', content: prompt }],
     })) as { response?: string; error?: string };
 
