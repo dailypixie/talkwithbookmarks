@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChatView } from '@/components/views/ChatView';
-import { SummaryInterface } from '@/components/views/SummaryView';
+// import { SummaryInterface } from '@/components/views/SummaryView';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/atoms/tabs';
 import { ThemeToggle } from '@/components/molecules/ThemeToggle';
 import { IndexingInterface } from '@/components/views/IndexingView';
@@ -17,16 +17,16 @@ export default function MainView() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col h-full min-h-0">
         <div className="px-4 pt-2 shrink-0">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="chat">Chat</TabsTrigger>
-            <TabsTrigger value="summary">Summary</TabsTrigger>
+            {/* <TabsTrigger value="summary">Summary</TabsTrigger> */}
             <TabsTrigger value="index">Index</TabsTrigger>
           </TabsList>
         </div>
 
-        <TabsContent value="summary" className="flex-1 overflow-hidden mt-0 data-[state=active]:flex flex-col">
+        {/* <TabsContent value="summary" className="flex-1 overflow-hidden mt-0 data-[state=active]:flex flex-col">
           <SummaryInterface className="h-full" isActive={activeTab === 'summary'} />
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="chat" className="flex-1 overflow-hidden mt-0 data-[state=active]:flex flex-col">
           <ChatView className="h-full border-0" />

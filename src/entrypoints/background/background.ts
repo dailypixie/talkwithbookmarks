@@ -179,13 +179,20 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
         case MessageAction.GET_INDEXING_PROGRESS: {
           const status: PipelineState = indexingPipeline.getStatus();
           const stats = await getIndexingStats();
+
+          // When pipeline is running, use stage-specific metrics so progress resets per stage
+          // When idle/done, use cumulative database stats
+          const useStageMetrics = status.isRunning;
+          const processed = useStageMetrics ? status.metrics.itemsIndexed : stats.processed;
+          const failed = useStageMetrics ? status.metrics.itemsFailed : stats.failed;
           const attempted = stats.processed + stats.failed;
           const allAttempted = stats.total > 0 && attempted >= stats.total;
+          const currentStage = status.currentStage || status.metrics.stage;
 
           const progress: IndexingProgress = {
             total: stats.total,
-            processed: stats.processed,
-            failed: stats.failed,
+            processed: processed,
+            failed: failed,
             status: status.isRunning
               ? status.isPaused
                 ? IndexingStatus.PAUSED
@@ -193,7 +200,9 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
               : allAttempted
                 ? IndexingStatus.DONE
                 : IndexingStatus.IDLE,
-            stage: status.currentStage || status.metrics.stage,
+            stage: currentStage,
+            currentStageNumber: indexingPipeline.getStageNumber(currentStage),
+            totalStages: indexingPipeline.getTotalStages(),
           };
 
           sendResponse(progress);

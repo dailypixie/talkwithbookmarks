@@ -8,17 +8,29 @@ export interface ProgressDisplayProps {
   failed?: number;
   status: string;
   stage: string;
+  currentStageNumber?: number;
+  totalStages?: number;
 }
 
-export function ProgressDisplay({ className, processed, total, failed = 0, status, stage }: ProgressDisplayProps) {
+export function ProgressDisplay({
+  className,
+  processed,
+  total,
+  failed = 0,
+  status,
+  stage,
+  currentStageNumber,
+  totalStages,
+}: ProgressDisplayProps) {
   const attempted = processed + failed;
   const percentage = total > 0 ? Math.round((attempted / total) * 100) : 0;
   const percentageCapped = Math.min(percentage, 100);
+  const stageInfo = currentStageNumber && totalStages ? ` (Stage ${currentStageNumber} of ${totalStages})` : '';
 
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       <div>
-        <h2 className="text-lg font-semibold mb-2 text-foreground">Indexing Progress</h2>
+        <h2 className="text-lg font-semibold mb-2 text-foreground">Indexing Progress{stageInfo}</h2>
         <div className="flex justify-between mb-1 text-sm text-muted-foreground">
           <span>Progress</span>
           <span>

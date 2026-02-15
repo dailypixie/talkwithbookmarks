@@ -26,6 +26,14 @@ const STAGES: { stage: PipelineStage; processor: StageProcessor }[] = [
   // { stage: PipelineStage.EMBEDDING, processor: embeddingStage },
 ];
 
+export const TOTAL_STAGES = STAGES.length;
+
+/** Get the 1-indexed stage number for a given stage */
+export function getStageNumber(stage: PipelineStage): number {
+  const index = STAGES.findIndex((s) => s.stage === stage);
+  return index >= 0 ? index + 1 : 0;
+}
+
 // Default concurrency limits per stage
 const DEFAULT_CONCURRENCY: Partial<Record<PipelineStage, number>> = {
   [PipelineStage.DOWNLOAD]: 10,
@@ -73,6 +81,16 @@ export class IndexingPipeline {
         itemsIndexed: 0,
       });
     }
+  }
+
+  /**
+   * Reset metrics for a specific stage
+   */
+  private resetStageMetrics(stage: PipelineStage): void {
+    this.metrics.stage = stage;
+    this.metrics.itemsIndexed = 0;
+    this.metrics.itemsFailed = 0;
+    this.metrics.itemsProcessed = 0;
   }
 
   /**
@@ -175,7 +193,8 @@ export class IndexingPipeline {
   private async processStage(stage: PipelineStage, processor: StageProcessor, items: StageQueueItem[]): Promise<void> {
     logger.info(`Processing stage: ${stage}`, { itemCount: items.length });
 
-    this.initializeMetrics();
+    // Reset metrics for this stage
+    this.resetStageMetrics(stage);
 
     await processor.setup();
 
@@ -266,12 +285,24 @@ export class IndexingPipeline {
       item.status = StageItemStatus.COMPLETED;
       item.queueStatus = result.stage === PipelineStage.DOWNLOAD ? StageItemQueueStatus.PROCESSED : StageItemQueueStatus.CHUNKED;
 
+      // Increment stage-level metrics
       this.metrics.itemsIndexed++;
+
+      const stageMetrics = this.stageMetrics.get(item.stage);
+      if (stageMetrics) {
+        stageMetrics.itemsIndexed++;
+      }
+
       logger.debug(`Item processed: ${item.url}`);
     } catch (error) {
       item.status = StageItemStatus.FAILED;
       item.error = (error as Error).message;
       this.metrics.itemsFailed++;
+
+      const stageMetrics = this.stageMetrics.get(item.stage);
+      if (stageMetrics) {
+        stageMetrics.itemsFailed++;
+      }
 
       // Save error to database
       const page = await getPageByUrl(item.url);
@@ -284,12 +315,9 @@ export class IndexingPipeline {
       logger.warn(`Item failed in ${item.stage}: ${item.url}`, error as Error);
     } finally {
       const duration = Date.now() - startTime;
-      const metrics = this.stageMetrics.get(item.stage);
-      if (metrics) {
-        metrics.itemsProcessed++;
-        if (item.status === StageItemStatus.FAILED) {
-          metrics.itemsFailed++;
-        }
+      const stageMetrics = this.stageMetrics.get(item.stage);
+      if (stageMetrics) {
+        stageMetrics.itemsProcessed++;
       }
 
       item.updatedAt = Date.now();
@@ -339,6 +367,7 @@ export class IndexingPipeline {
     return {
       isRunning: this.isRunning,
       isPaused: this.isPaused,
+      currentStage: this.metrics.stage,
       metrics: { ...this.metrics },
     };
   }
@@ -357,6 +386,20 @@ export class IndexingPipeline {
       processed: metrics.itemsProcessed,
       failed: metrics.itemsFailed,
     };
+  }
+
+  /**
+   * Get the 1-indexed stage number for a given stage
+   */
+  getStageNumber(stage: PipelineStage): number {
+    return getStageNumber(stage);
+  }
+
+  /**
+   * Get the total number of stages in the pipeline
+   */
+  getTotalStages(): number {
+    return TOTAL_STAGES;
   }
 }
 

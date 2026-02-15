@@ -137,6 +137,8 @@ export function IndexingInterface() {
             failed={progress.failed}
             status={statusLabel}
             stage={progress.stage}
+            currentStageNumber={progress.currentStageNumber}
+            totalStages={progress.totalStages}
           />
           {zeroItemsMessage && <IndexingMessage message={zeroItemsMessage} />}
         </div>

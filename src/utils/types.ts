@@ -177,6 +177,10 @@ export interface IndexingProgress {
   current?: string;
   status: IndexingStatus;
   stage: PipelineStage;
+  /** Current stage number (1-indexed) */
+  currentStageNumber?: number;
+  /** Total number of stages */
+  totalStages?: number;
 }
 
 /** Statistics from a completed indexing run */
