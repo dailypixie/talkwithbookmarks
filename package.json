@@ -1,6 +1,6 @@
 {
   "name": "talk-with-bookmarks",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A simple browser extension that downloads bookmarks, stores them in a database, and processes them in chunks.",
   "private": true,
   "type": "module",
