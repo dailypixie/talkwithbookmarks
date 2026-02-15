@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { cn } from '@/utils';
 import { Conversation } from '@/utils/types';
@@ -43,10 +43,19 @@ export function ChatView({ className, container }: ChatViewProps) {
 
   const loadingText = chatLoadingText || modelLoadingText;
 
+  const [pendingConversationId, setPendingConversationId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (pendingConversationId !== null && !showHistory) {
+      loadHistory(pendingConversationId);
+      setPendingConversationId(null);
+    }
+  }, [pendingConversationId, showHistory]);
+
   const handleSelectConversation = async (conversation: Conversation) => {
     if (conversation.id) {
       await chrome.storage.local.set({ activeConversationId: conversation.id });
-      await loadHistory();
+      setPendingConversationId(conversation.id);
       setShowHistory(false);
     }
   };

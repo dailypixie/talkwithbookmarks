@@ -87,7 +87,7 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
         return;
       }
       if (message.action === 'getHistory') {
-        sendResponse(await handleGetHistory(message.url));
+        sendResponse(await handleGetHistory(message.url, message.conversationId));
         return;
       }
       if (message.action === 'searchContext') {
@@ -144,7 +144,11 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
             break;
           }
           if (toQueue.length === 0) {
-            sendResponse({ success: true, count: 0, message: trimmed.length === 0 ? 'No valid URLs' : 'All URLs already indexed or queued' });
+            sendResponse({
+              success: true,
+              count: 0,
+              message: trimmed.length === 0 ? 'No valid URLs' : 'All URLs already indexed or queued',
+            });
             break;
           }
           logger.info(`Queueing ${toQueue.length} manual URLs for indexing`);

@@ -15,7 +15,7 @@ export interface UseChatStateResult {
   timestamp: string;
   handleSend: (value: string) => Promise<void>;
   handleStop: () => Promise<void>;
-  loadHistory: () => Promise<void>;
+  loadHistory: (conversationId?: number) => Promise<void>;
 }
 
 export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams): UseChatStateResult {
@@ -51,10 +51,10 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
     return () => chrome.runtime.onMessage.removeListener(handleMessage);
   }, []);
 
-  const loadHistory = async () => {
+  const loadHistory = async (conversationId?: number) => {
     try {
       const url = await getPageUrl();
-      const res = await chrome.runtime.sendMessage({ action: 'getHistory', url });
+      const res = await chrome.runtime.sendMessage({ action: 'getHistory', url, conversationId });
       if (res?.messages) {
         const cleaned = res.messages.map((m: { role: string; content: string; sources?: Source[] }) => ({
           role: m.role as Roles,

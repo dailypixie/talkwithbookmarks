@@ -69,27 +69,28 @@ export async function handleChat(
 }
 
 export async function handleGetHistory(
-  url: string | undefined
+  url: string | undefined,
+  conversationId?: number
 ): Promise<{ messages: { role: string; content: string; sources?: Source[] }[]; error?: string }> {
   try {
-    let conversationId: number | undefined;
+    let actualConversationId: number | undefined;
     const isExtensionUrl = !url || url.includes('chrome-extension:');
 
-    if (url && !isExtensionUrl) {
+    if (conversationId) {
+      actualConversationId = conversationId;
+    } else if (url && !isExtensionUrl) {
       const existing = await DbModule.getConversationForUrl(url);
-      if (existing?.id) conversationId = existing.id;
-    }
-
-    if (!conversationId && isExtensionUrl) {
+      if (existing?.id) actualConversationId = existing.id;
+    } else if (!actualConversationId && isExtensionUrl) {
       const stored = await chrome.storage.local.get('activeConversationId');
       if (typeof stored.activeConversationId === 'number') {
-        conversationId = stored.activeConversationId;
+        actualConversationId = stored.activeConversationId;
       }
     }
 
-    if (conversationId) {
-      const messages = await DbModule.getConversationMessages(conversationId);
-      await chrome.storage.local.set({ activeConversationId: conversationId });
+    if (actualConversationId) {
+      const messages = await DbModule.getConversationMessages(actualConversationId);
+      await chrome.storage.local.set({ activeConversationId: actualConversationId });
       return {
         messages: messages.map((m) => ({
           role: m.role === Roles.USER ? 'user' : 'assistant',
@@ -98,9 +99,11 @@ export async function handleGetHistory(
         })),
       };
     }
+
     if (!url || !isExtensionUrl) {
       await chrome.storage.local.remove('activeConversationId');
     }
+
     return { messages: [] };
   } catch (e) {
     logger.error('GetHistory error', e as Error);
