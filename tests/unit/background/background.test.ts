@@ -19,6 +19,8 @@ const mockPause = jest.fn();
 const mockResume = jest.fn();
 const mockStop = jest.fn();
 const mockGetStatus = jest.fn();
+const mockGetStageNumber = jest.fn();
+const mockGetTotalStages = jest.fn();
 const mockGetIndexingStats = jest.fn();
 const mockClearDatabase = jest.fn();
 const mockGetPageByUrl = jest.fn();
@@ -51,6 +53,8 @@ jest.mock('@/entrypoints/background/IndexingPipeline', () => ({
     resume: mockResume,
     stop: mockStop,
     getStatus: mockGetStatus,
+    getStageNumber: mockGetStageNumber,
+    getTotalStages: mockGetTotalStages,
   },
 }));
 
@@ -120,6 +124,10 @@ describe('Background message routing', () => {
       isPaused: false,
       metrics: { stage: PipelineStage.DOWNLOAD },
     });
+    mockGetStageNumber.mockImplementation((stage: PipelineStage) =>
+      stage === PipelineStage.DOWNLOAD ? 1 : stage === PipelineStage.CHUNK ? 2 : 0
+    );
+    mockGetTotalStages.mockReturnValue(2);
   });
 
   describe('forward actions', () => {
@@ -284,6 +292,8 @@ describe('Background message routing', () => {
         failed: 1,
         status: 'idle',
         stage: 'download',
+        currentStageNumber: 1,
+        totalStages: 2,
       });
     });
 
@@ -301,6 +311,8 @@ describe('Background message routing', () => {
         failed: 0,
         status: 'indexing',
         stage: 'chunk',
+        currentStageNumber: 2,
+        totalStages: 2,
       });
     });
 
@@ -318,6 +330,8 @@ describe('Background message routing', () => {
         failed: 0,
         status: 'paused',
         stage: 'download',
+        currentStageNumber: 1,
+        totalStages: 2,
       });
     });
 
