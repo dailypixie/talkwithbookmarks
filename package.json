@@ -4,8 +4,9 @@
   "description": "A simple browser extension that downloads bookmarks, stores them in a database, and processes them in chunks.",
   "private": true,
   "scripts": {
+    "bd": "npm run clean && parcel build src/manifest.json --config @parcel/config-webextension --no-optimize --no-scope-hoist",
     "build": "npm run clean && parcel build src/manifest.json --config @parcel/config-webextension",
-    "watch": "npm run clean && parcel watch --host localhost src/manifest.json --config @parcel/config-webextension",
+    "watch": "npm run clean && parcel watch --host localhost src/manifest.json --config @parcel/config-webextension --no-optimize --no-scope-hoist",
     "test": "jest",
     "format": "npx prettier -y --ignore-path .gitignore \"src/**/*.+(js|jsx|ts|tsx)\" --write",
     "lint:file": "npx --yes @ls-lint/ls-lint@2.2.3 --workdir src",
