@@ -3,7 +3,7 @@
  */
 
 import { PipelineStage, StageQueueItem } from '@/utils/types';
-import { StageProcessor } from '@/background/stages/StageProcessor';
+import { StageProcessor } from '@/entrypoints/background/stages/StageProcessor';
 
 // Concrete implementation for testing abstract StageProcessor
 class TestStageProcessor extends StageProcessor {

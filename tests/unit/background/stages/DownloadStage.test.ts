@@ -2,7 +2,7 @@
  * Unit tests for src/background/stages/DownloadStage.ts
  */
 
-import { DownloadStage, downloadStage } from '@/background/stages/DownloadStage';
+import { DownloadStage, downloadStage } from '@/entrypoints/background/stages/DownloadStage';
 import { PipelineStage, StageQueueItem } from '@/utils/types';
 
 const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
@@ -45,10 +45,7 @@ describe('DownloadStage', () => {
       const item = makeItem();
       const result = await downloadStage.process(item);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://example.com',
-        expect.objectContaining({ signal: expect.any(AbortSignal) })
-      );
+      expect(mockFetch).toHaveBeenCalledWith('https://example.com', expect.objectContaining({ signal: expect.any(AbortSignal) }));
       expect(result.rawHtml).toBe(html);
       expect(result.updatedAt).toBeDefined();
     });
@@ -61,9 +58,7 @@ describe('DownloadStage', () => {
       } as any);
 
       const item = makeItem();
-      await expect(downloadStage.process(item)).rejects.toThrow(
-        'HTTP 404: Not Found'
-      );
+      await expect(downloadStage.process(item)).rejects.toThrow('HTTP 404: Not Found');
     });
 
     it('throws when content is too small (< 100 chars)', async () => {
@@ -73,9 +68,7 @@ describe('DownloadStage', () => {
       } as any);
 
       const item = makeItem();
-      await expect(downloadStage.process(item)).rejects.toThrow(
-        'Page content too small'
-      );
+      await expect(downloadStage.process(item)).rejects.toThrow('Page content too small');
     });
 
     it('accepts content of exactly 100 chars', async () => {

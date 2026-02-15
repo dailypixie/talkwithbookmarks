@@ -1,5 +1,5 @@
-import * as DbModule from '@/background/db';
-import { sendMessageToOffscreenWithRetry } from '@/background/offscreen';
+import * as DbModule from '@/entrypoints/background/db';
+import { sendMessageToOffscreenWithRetry } from '@/entrypoints/background/offscreen';
 import { backgroundLogger as logger } from '@/utils/logger';
 import { Roles } from '@/utils/types';
 import type { Message, Source, Conversation } from '@/utils/types';

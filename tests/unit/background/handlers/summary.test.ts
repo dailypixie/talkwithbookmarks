@@ -2,26 +2,24 @@
  * Unit tests for src/background/handlers/summary.ts
  */
 
-import { handleGetPageSummary, handleGenerateSummary } from '@/background/handlers/summary';
+import { handleGetPageSummary, handleGenerateSummary } from '@/entrypoints/background/handlers/summary';
 import { SUMMARY_CONFIG } from '@/utils/constants';
 
-jest.mock('@/background/db', () => ({
+jest.mock('@/entrypoints/background/db', () => ({
   getPageByUrl: jest.fn(),
   updatePageSummary: jest.fn(),
 }));
 
-jest.mock('@/background/offscreen', () => ({
+jest.mock('@/entrypoints/background/offscreen', () => ({
   sendMessageToOffscreenWithRetry: jest.fn(),
 }));
 
-import { getPageByUrl, updatePageSummary } from '@/background/db';
-import { sendMessageToOffscreenWithRetry } from '@/background/offscreen';
+import { getPageByUrl, updatePageSummary } from '@/entrypoints/background/db';
+import { sendMessageToOffscreenWithRetry } from '@/entrypoints/background/offscreen';
 
 const mockGetPageByUrl = getPageByUrl as jest.MockedFunction<typeof getPageByUrl>;
 const mockUpdatePageSummary = updatePageSummary as jest.MockedFunction<typeof updatePageSummary>;
-const mockSendToOffscreen = sendMessageToOffscreenWithRetry as jest.MockedFunction<
-  typeof sendMessageToOffscreenWithRetry
->;
+const mockSendToOffscreen = sendMessageToOffscreenWithRetry as jest.MockedFunction<typeof sendMessageToOffscreenWithRetry>;
 
 describe('handleGetPageSummary', () => {
   beforeEach(() => {
@@ -81,11 +79,7 @@ describe('handleGenerateSummary', () => {
   });
 
   it('generates and saves summary', async () => {
-    const result = await handleGenerateSummary(
-      'https://example.com',
-      'Page content here',
-      'Example Title'
-    );
+    const result = await handleGenerateSummary('https://example.com', 'Page content here', 'Example Title');
 
     expect(mockSendToOffscreen).toHaveBeenCalledTimes(2);
     expect(mockSendToOffscreen).toHaveBeenNthCalledWith(1, { action: 'offscreen_getStatus' });
@@ -101,11 +95,7 @@ describe('handleGenerateSummary', () => {
         ]),
       })
     );
-    expect(mockUpdatePageSummary).toHaveBeenCalledWith(
-      'https://example.com',
-      'Generated summary from LLM',
-      'test-model'
-    );
+    expect(mockUpdatePageSummary).toHaveBeenCalledWith('https://example.com', 'Generated summary from LLM', 'test-model');
     expect(result).toEqual({
       summary: 'Generated summary from LLM',
       summaryModel: 'test-model',
@@ -120,9 +110,7 @@ describe('handleGenerateSummary', () => {
     const chatCall = mockSendToOffscreen.mock.calls.find((c) => c[0].action === 'offscreen_chat');
     expect(chatCall).toBeDefined();
     const prompt = (chatCall![0] as any).messages[0].content;
-    expect(prompt.length).toBeLessThanOrEqual(
-      SUMMARY_CONFIG.MAX_CONTENT_LENGTH + 500
-    );
+    expect(prompt.length).toBeLessThanOrEqual(SUMMARY_CONFIG.MAX_CONTENT_LENGTH + 500);
     expect(prompt).toContain('...');
   });
 

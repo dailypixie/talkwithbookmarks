@@ -2,7 +2,7 @@
  * Simplified Pipeline for Bookmarks Processing
  * Coordinates 2-stage indexing pipeline: Download → Chunk
  */
-import { addPageToList, addSlice, getPageByUrl, updateListItemProcessedAt } from '@/background/db';
+import { addPageToList, addSlice, getPageByUrl, updateListItemProcessedAt } from '@/entrypoints/background/db';
 import {
   PageItem,
   PipelineConfig,
@@ -16,8 +16,8 @@ import {
   PipelineState,
 } from '@/utils/types';
 import { pipelineLogger as logger } from '@/utils/logger';
-import { downloadStage, chunkStage, StageProcessor } from '@/background/stages';
-import { pipelineEvents } from '@/background/events';
+import { downloadStage, chunkStage, StageProcessor } from '@/entrypoints/background/stages';
+import { pipelineEvents } from '@/entrypoints/background/events';
 
 // Stage configuration with their processors
 const STAGES: { stage: PipelineStage; processor: StageProcessor }[] = [

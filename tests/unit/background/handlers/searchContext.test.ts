@@ -2,15 +2,15 @@
  * Unit tests for src/background/handlers/searchContext.ts
  */
 
-import { handleSearchContext } from '@/background/handlers/searchContext';
+import { handleSearchContext } from '@/entrypoints/background/handlers/searchContext';
 import { SliceItem } from '@/utils/types';
 
-jest.mock('@/background/db', () => ({
+jest.mock('@/entrypoints/background/db', () => ({
   getSlicesByUrl: jest.fn(),
   getAllSlices: jest.fn(),
 }));
 
-import * as DbModule from '@/background/db';
+import * as DbModule from '@/entrypoints/background/db';
 
 const mockGetSlicesByUrl = DbModule.getSlicesByUrl as jest.MockedFunction<typeof DbModule.getSlicesByUrl>;
 const mockGetAllSlices = DbModule.getAllSlices as jest.MockedFunction<typeof DbModule.getAllSlices>;
@@ -47,10 +47,7 @@ describe('handleSearchContext', () => {
   });
 
   it('returns all chunks for url when no query (sorted by position)', async () => {
-    const slices = [
-      slice({ id: 'a', position: 1, text: 'Second chunk' }),
-      slice({ id: 'b', position: 0, text: 'First chunk' }),
-    ];
+    const slices = [slice({ id: 'a', position: 1, text: 'Second chunk' }), slice({ id: 'b', position: 0, text: 'First chunk' })];
     mockGetSlicesByUrl.mockResolvedValue(slices);
 
     const result = await handleSearchContext({
@@ -64,11 +61,7 @@ describe('handleSearchContext', () => {
   });
 
   it('respects topK when returning url chunks', async () => {
-    const slices = [
-      slice({ id: '1', position: 0 }),
-      slice({ id: '2', position: 1 }),
-      slice({ id: '3', position: 2 }),
-    ];
+    const slices = [slice({ id: '1', position: 0 }), slice({ id: '2', position: 1 }), slice({ id: '3', position: 2 })];
     mockGetSlicesByUrl.mockResolvedValue(slices);
 
     const result = await handleSearchContext({
@@ -109,9 +102,7 @@ describe('handleSearchContext', () => {
   });
 
   it('clamps topK between 1 and 20 for result slicing', async () => {
-    const manySlices = Array.from({ length: 30 }, (_, i) =>
-      slice({ id: `s${i}`, position: i })
-    );
+    const manySlices = Array.from({ length: 30 }, (_, i) => slice({ id: `s${i}`, position: i }));
     mockGetAllSlices.mockResolvedValue(manySlices);
 
     const result = await handleSearchContext({ query: 'x', topK: 100 });

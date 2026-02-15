@@ -2,7 +2,7 @@
  * Unit tests for src/background/stages/ChunkStage.ts
  */
 
-import { ChunkStage, chunkStage } from '@/background/stages/ChunkStage';
+import { ChunkStage, chunkStage } from '@/entrypoints/background/stages/ChunkStage';
 import { PipelineStage, StageQueueItem } from '@/utils/types';
 
 function makeItem(overrides: Partial<StageQueueItem> = {}): StageQueueItem {
@@ -56,9 +56,7 @@ describe('ChunkStage', () => {
 
     it('throws when no rawHtml', async () => {
       const item = makeItem({ rawHtml: undefined });
-      await expect(chunkStage.process(item)).rejects.toThrow(
-        'No HTML content to chunk'
-      );
+      await expect(chunkStage.process(item)).rejects.toThrow('No HTML content to chunk');
     });
 
     it('throws when extracted text is too short', async () => {

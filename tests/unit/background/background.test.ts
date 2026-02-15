@@ -5,8 +5,7 @@
 import { MessageAction } from '@/utils/types';
 
 // Capture the message listener when background registers it
-let messageListener: ((message: unknown, sender: unknown, sendResponse: (r?: unknown) => void) => boolean) | null =
-  null;
+let messageListener: ((message: unknown, sender: unknown, sendResponse: (r?: unknown) => void) => boolean) | null = null;
 (global.chrome as any).runtime.onMessage.addListener = jest.fn(
   (cb: (msg: unknown, sender: unknown, sendResponse: (r?: unknown) => void) => boolean) => {
     messageListener = cb;
@@ -35,11 +34,11 @@ const mockHandleSearchContext = jest.fn();
 const mockHandleGetPageSummary = jest.fn();
 const mockHandleGenerateSummary = jest.fn();
 
-jest.mock('@/background/bookmarks', () => ({
+jest.mock('@/entrypoints/background/bookmarks', () => ({
   bookmarksDataSource: { fetchItems: mockFetchItems },
 }));
 
-jest.mock('@/background/SimplePipeline', () => ({
+jest.mock('@/entrypoints/background/SimplePipeline', () => ({
   simplePipeline: {
     start: mockStart,
     pause: mockPause,
@@ -48,7 +47,7 @@ jest.mock('@/background/SimplePipeline', () => ({
   },
 }));
 
-jest.mock('@/background/db', () => ({
+jest.mock('@/entrypoints/background/db', () => ({
   getIndexingStats: mockGetIndexingStats,
   clearDatabase: mockClearDatabase,
   getPageByUrl: mockGetPageByUrl,
@@ -59,11 +58,11 @@ jest.mock('@/utils/html', () => ({
   isExcluded: jest.fn(() => false),
 }));
 
-jest.mock('@/background/offscreen', () => ({
+jest.mock('@/entrypoints/background/offscreen', () => ({
   initializeOffscreen: jest.fn(),
 }));
 
-jest.mock('@/background/handlers/model', () => ({
+jest.mock('@/entrypoints/background/handlers/model', () => ({
   handleGetRecommendedModels: mockHandleGetRecommendedModels,
   handleLoadModel: mockHandleLoadModel,
   handleUnloadModel: mockHandleUnloadModel,
@@ -73,16 +72,16 @@ jest.mock('@/background/handlers/model', () => ({
   handleStop: mockHandleStop,
 }));
 
-jest.mock('@/background/handlers/chat', () => ({
+jest.mock('@/entrypoints/background/handlers/chat', () => ({
   handleChat: mockHandleChat,
   handleGetHistory: mockHandleGetHistory,
 }));
 
-jest.mock('@/background/handlers/searchContext', () => ({
+jest.mock('@/entrypoints/background/handlers/searchContext', () => ({
   handleSearchContext: mockHandleSearchContext,
 }));
 
-jest.mock('@/background/handlers/summary', () => ({
+jest.mock('@/entrypoints/background/handlers/summary', () => ({
   handleGetPageSummary: mockHandleGetPageSummary,
   handleGenerateSummary: mockHandleGenerateSummary,
 }));
@@ -94,13 +93,10 @@ function getMessageListener(): (message: unknown, sender: unknown, sendResponse:
 
 beforeAll(async () => {
   // Dynamic import so our addListener mock captures the callback
-  await import('@/background/background');
+  await import('@/entrypoints/background/background');
 });
 
-function runListener(
-  message: unknown,
-  sender = { id: 'test', url: 'https://example.com' }
-): Promise<unknown> {
+function runListener(message: unknown, sender = { id: 'test', url: 'https://example.com' }): Promise<unknown> {
   return new Promise((resolve) => {
     const sendResponse = (response?: unknown) => resolve(response);
     const listener = getMessageListener();
@@ -186,21 +182,15 @@ describe('Background message routing', () => {
     it('routes chat to handler with message and sender', async () => {
       const sender = { id: 'sender-1', url: 'https://example.com', tab: { id: 1 } };
       mockHandleChat.mockResolvedValue({ success: true });
-      const result = await runListener(
-        { action: 'chat', messages: [], url: 'https://example.com' },
-        sender
-      );
-      expect(mockHandleChat).toHaveBeenCalledWith(
-        { action: 'chat', messages: [], url: 'https://example.com' },
-        sender
-      );
+      const result = await runListener({ action: 'chat', messages: [], url: 'https://example.com' }, sender);
+      expect(mockHandleChat).toHaveBeenCalledWith({ action: 'chat', messages: [], url: 'https://example.com' }, sender);
       expect(result).toEqual({ success: true });
     });
 
     it('routes getHistory to handler', async () => {
       mockHandleGetHistory.mockResolvedValue([]);
       const result = await runListener({ action: 'getHistory', url: 'https://example.com' });
-      expect(mockHandleGetHistory).toHaveBeenCalledWith('https://example.com');
+      expect(mockHandleGetHistory).toHaveBeenCalledWith('https://example.com', undefined);
       expect(result).toEqual([]);
     });
   });
@@ -228,11 +218,7 @@ describe('Background message routing', () => {
         content: 'page content',
         title: 'Page Title',
       });
-      expect(mockHandleGenerateSummary).toHaveBeenCalledWith(
-        'https://example.com',
-        'page content',
-        'Page Title'
-      );
+      expect(mockHandleGenerateSummary).toHaveBeenCalledWith('https://example.com', 'page content', 'Page Title');
       expect(result).toEqual({ summary: 'Generated summary' });
     });
   });

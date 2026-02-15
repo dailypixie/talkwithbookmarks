@@ -1,7 +1,7 @@
 import Dexie, { Table } from 'dexie';
 import { PageItem, SliceItem, Conversation, Message, Source, StageQueueItem, Roles } from '@/utils/types';
 import { dbLogger as logger } from '@/utils/logger';
-import DatabaseService from '@/background/DatabaseService';
+import DatabaseService from '@/entrypoints/background/DatabaseService';
 
 Dexie.debug = typeof process !== 'undefined' && process.env?.NODE_ENV === 'development';
 

@@ -46,8 +46,7 @@
       "resources": [
         "./entrypoints/offscreen/offscreen.html",
         "*.css",
-        "*.js",
-        "assets/*"
+        "*.js"
       ],
       "matches": [
         "<all_urls>"
@@ -55,7 +54,7 @@
     }
   ],
   "background": {
-    "service_worker": "./background/background.ts",
+    "service_worker": "./entrypoints/background/background.ts",
     "type": "module"
   }
 }

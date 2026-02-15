@@ -2,36 +2,28 @@
  * Unit tests for src/background/handlers/chat.ts
  */
 
-import { handleChat, handleGetHistory } from '@/background/handlers/chat';
+import { handleChat, handleGetHistory } from '@/entrypoints/background/handlers/chat';
 import { Roles } from '@/utils/types';
 
-jest.mock('@/background/db', () => ({
+jest.mock('@/entrypoints/background/db', () => ({
   getConversationForUrl: jest.fn(),
   createConversation: jest.fn(),
   addMessage: jest.fn(),
   getConversationMessages: jest.fn(),
 }));
 
-jest.mock('@/background/offscreen', () => ({
+jest.mock('@/entrypoints/background/offscreen', () => ({
   sendMessageToOffscreenWithRetry: jest.fn(),
 }));
 
-import * as DbModule from '@/background/db';
-import { sendMessageToOffscreenWithRetry } from '@/background/offscreen';
+import * as DbModule from '@/entrypoints/background/db';
+import { sendMessageToOffscreenWithRetry } from '@/entrypoints/background/offscreen';
 
-const mockGetConversationForUrl = DbModule.getConversationForUrl as jest.MockedFunction<
-  typeof DbModule.getConversationForUrl
->;
-const mockCreateConversation = DbModule.createConversation as jest.MockedFunction<
-  typeof DbModule.createConversation
->;
+const mockGetConversationForUrl = DbModule.getConversationForUrl as jest.MockedFunction<typeof DbModule.getConversationForUrl>;
+const mockCreateConversation = DbModule.createConversation as jest.MockedFunction<typeof DbModule.createConversation>;
 const mockAddMessage = DbModule.addMessage as jest.MockedFunction<typeof DbModule.addMessage>;
-const mockGetConversationMessages = DbModule.getConversationMessages as jest.MockedFunction<
-  typeof DbModule.getConversationMessages
->;
-const mockSendToOffscreen = sendMessageToOffscreenWithRetry as jest.MockedFunction<
-  typeof sendMessageToOffscreenWithRetry
->;
+const mockGetConversationMessages = DbModule.getConversationMessages as jest.MockedFunction<typeof DbModule.getConversationMessages>;
+const mockSendToOffscreen = sendMessageToOffscreenWithRetry as jest.MockedFunction<typeof sendMessageToOffscreenWithRetry>;
 
 describe('handleChat', () => {
   const defaultSender = { id: 'ext', tab: { id: 1 } } as chrome.runtime.MessageSender;
@@ -51,12 +43,9 @@ describe('handleChat', () => {
   });
 
   it('throws when last message content is empty', async () => {
-    await expect(
-      handleChat(
-        { messages: [{ role: Roles.USER, content: '   ' }] } as any,
-        defaultSender
-      )
-    ).rejects.toThrow('Invalid message content');
+    await expect(handleChat({ messages: [{ role: Roles.USER, content: '   ' }] } as any, defaultSender)).rejects.toThrow(
+      'Invalid message content'
+    );
   });
 
   it('creates new conversation when none exists', async () => {
@@ -79,10 +68,7 @@ describe('handleChat', () => {
   it('reuses existing conversation when url matches', async () => {
     mockGetConversationForUrl.mockResolvedValue({ id: 10, title: 'x', updatedAt: 1 } as any);
 
-    const result = await handleChat(
-      { messages: [{ role: Roles.USER, content: 'Hi' }], url: 'https://example.com' },
-      defaultSender
-    );
+    const result = await handleChat({ messages: [{ role: Roles.USER, content: 'Hi' }], url: 'https://example.com' }, defaultSender);
 
     expect(mockGetConversationForUrl).toHaveBeenCalledWith('https://example.com');
     expect(mockCreateConversation).not.toHaveBeenCalled();
@@ -99,22 +85,13 @@ describe('handleChat', () => {
       defaultSender
     );
 
-    expect(mockAddMessage).toHaveBeenNthCalledWith(
-      1,
-      1,
-      'user',
-      'Expanded content for context',
-      undefined
-    );
+    expect(mockAddMessage).toHaveBeenNthCalledWith(1, 1, 'user', 'Expanded content for context', undefined);
   });
 
   it('saves assistant response from offscreen', async () => {
     mockSendToOffscreen.mockResolvedValue({ response: 'Generated answer' });
 
-    const result = await handleChat(
-      { messages: [{ role: Roles.USER, content: 'Q' }] },
-      defaultSender
-    );
+    const result = await handleChat({ messages: [{ role: Roles.USER, content: 'Q' }] }, defaultSender);
 
     expect(mockAddMessage).toHaveBeenNthCalledWith(2, 1, 'assistant', 'Generated answer', undefined, undefined);
     expect(result.response).toBe('Generated answer');
@@ -123,20 +100,14 @@ describe('handleChat', () => {
   it('saves error message when offscreen fails', async () => {
     mockSendToOffscreen.mockRejectedValue(new Error('LLM failed'));
 
-    const result = await handleChat(
-      { messages: [{ role: Roles.USER, content: 'Q' }] },
-      defaultSender
-    );
+    const result = await handleChat({ messages: [{ role: Roles.USER, content: 'Q' }] }, defaultSender);
 
     expect(mockAddMessage).toHaveBeenNthCalledWith(2, 1, 'assistant', 'Error: Error: LLM failed', undefined, undefined);
     expect(result.error).toBe('Error: LLM failed');
   });
 
   it('passes tabId to offscreen chat', async () => {
-    await handleChat(
-      { messages: [{ role: Roles.USER, content: 'Q' }] },
-      { id: 'ext', tab: { id: 99 } } as chrome.runtime.MessageSender
-    );
+    await handleChat({ messages: [{ role: Roles.USER, content: 'Q' }] }, { id: 'ext', tab: { id: 99 } } as chrome.runtime.MessageSender);
 
     expect(mockSendToOffscreen).toHaveBeenCalledWith(
       expect.objectContaining({

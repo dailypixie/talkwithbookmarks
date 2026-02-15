@@ -28,7 +28,7 @@ function inject() {
   shadow.appendChild(rootDiv);
 
   try {
-    const cssUrl = new URL('./bubble.css', import.meta.url).href;
+    const cssUrl = new URL('../../ui/globals.css', import.meta.url).href;
     fetch(cssUrl)
       .then((res) => {
         if (!res.ok) throw new Error(`Status ${res.status}`);

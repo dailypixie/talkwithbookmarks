@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { SimplePipeline } from '@/background/SimplePipeline';
-import { db, getPageByUrl, getSlicesByUrl } from '@/background/db';
-import { pipelineEvents } from '@/background/events';
+import { SimplePipeline } from '@/entrypoints/background/SimplePipeline';
+import { db, getPageByUrl, getSlicesByUrl } from '@/entrypoints/background/db';
+import { pipelineEvents } from '@/entrypoints/background/events';
 import { PageItem } from '@/utils/types';
 
 // Mock simple html response

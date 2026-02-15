@@ -3,13 +3,13 @@
  * Handles bookmark indexing, chat/summary, and message routing
  */
 
-import { bookmarksDataSource } from '@/background/bookmarks';
-import { simplePipeline } from '@/background/SimplePipeline';
-import { getIndexingStats, clearDatabase, getPageByUrl } from '@/background/db';
+import { bookmarksDataSource } from '@/entrypoints/background/bookmarks';
+import { simplePipeline } from '@/entrypoints/background/SimplePipeline';
+import { getIndexingStats, clearDatabase, getPageByUrl } from '@/entrypoints/background/db';
 import { isExcluded } from '@/utils/html';
 import { backgroundLogger as logger } from '@/utils/logger';
 import { MessageAction, IndexingStatus, IndexingProgress, PipelineState } from '@/utils/types';
-import { initializeOffscreen } from '@/background/offscreen';
+import { initializeOffscreen } from '@/entrypoints/background/offscreen';
 import {
   handleGetRecommendedModels,
   handleLoadModel,
@@ -18,10 +18,10 @@ import {
   handleGetModels,
   handleGetCachedModels,
   handleStop,
-} from '@/background/handlers/model';
-import { handleChat, handleGetHistory, handleGetConversations } from '@/background/handlers/chat';
-import { handleSearchContext } from '@/background/handlers/searchContext';
-import { handleGetPageSummary, handleGenerateSummary } from '@/background/handlers/summary';
+} from '@/entrypoints/background/handlers/model';
+import { handleChat, handleGetHistory, handleGetConversations } from '@/entrypoints/background/handlers/chat';
+import { handleSearchContext } from '@/entrypoints/background/handlers/searchContext';
+import { handleGetPageSummary, handleGenerateSummary } from '@/entrypoints/background/handlers/summary';
 
 logger.info('Background service worker started');
 

@@ -11,17 +11,15 @@ import {
   handleGetModels,
   handleGetCachedModels,
   handleStop,
-} from '@/background/handlers/model';
+} from '@/entrypoints/background/handlers/model';
 
-jest.mock('@/background/offscreen', () => ({
+jest.mock('@/entrypoints/background/offscreen', () => ({
   sendMessageToOffscreenWithRetry: jest.fn(),
 }));
 
-import { sendMessageToOffscreenWithRetry } from '@/background/offscreen';
+import { sendMessageToOffscreenWithRetry } from '@/entrypoints/background/offscreen';
 
-const mockSendToOffscreen = sendMessageToOffscreenWithRetry as jest.MockedFunction<
-  typeof sendMessageToOffscreenWithRetry
->;
+const mockSendToOffscreen = sendMessageToOffscreenWithRetry as jest.MockedFunction<typeof sendMessageToOffscreenWithRetry>;
 
 describe('model handlers', () => {
   beforeEach(() => {

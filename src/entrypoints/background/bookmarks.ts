@@ -1,5 +1,5 @@
 import { isExcluded } from '@/utils/html';
-import { db } from '@/background/db';
+import { db } from '@/entrypoints/background/db';
 import { PageItem, DataSource } from '@/utils/types';
 import { bookmarksLogger as logger } from '@/utils/logger';
 

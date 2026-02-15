@@ -2,9 +2,9 @@
  * Unit tests for src/background/bookmarks.ts
  */
 
-import { BookmarksDataSource } from '@/background/bookmarks';
+import { BookmarksDataSource } from '@/entrypoints/background/bookmarks';
 
-jest.mock('@/background/db', () => ({
+jest.mock('@/entrypoints/background/db', () => ({
   db: {
     pages: {
       toArray: jest.fn(),
@@ -12,7 +12,7 @@ jest.mock('@/background/db', () => ({
   },
 }));
 
-import { db } from '@/background/db';
+import { db } from '@/entrypoints/background/db';
 
 const mockPagesToArray = (db as any).pages.toArray;
 
@@ -87,9 +87,7 @@ describe('BookmarksDataSource', () => {
     });
 
     it('filters out already indexed pages', async () => {
-      mockPagesToArray.mockResolvedValue([
-        { url: 'https://example.com', processed: 1, error: undefined, indexedAt: undefined },
-      ]);
+      mockPagesToArray.mockResolvedValue([{ url: 'https://example.com', processed: 1, error: undefined, indexedAt: undefined }]);
 
       const items = await dataSource.fetchItems();
 
