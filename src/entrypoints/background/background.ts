@@ -188,6 +188,7 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
               : allAttempted
                 ? IndexingStatus.DONE
                 : IndexingStatus.IDLE,
+            stage: status.currentStage || status.metrics.stage,
           };
 
           sendResponse(progress);
@@ -196,6 +197,7 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
 
         case MessageAction.CLEAR_DATA: {
           logger.info('Clearing database...');
+          indexingPipeline.stop();
           await clearDatabase();
           sendResponse({ success: true });
           break;
@@ -203,6 +205,7 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
 
         case MessageAction.CLEAR_INDEXED_DATA: {
           logger.info('Clearing indexed data...');
+          indexingPipeline.stop();
           await clearIndexedData();
           sendResponse({ success: true });
           break;
