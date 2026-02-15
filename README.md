@@ -11,6 +11,13 @@ TalkWithBookmarks is a browser extension that lets you chat with your bookmarked
 - **Local-First AI**: Utilizes WebLLM to run the language model directly in your browser, keeping your data private.
 - **Automatic Indexing**: Your bookmarks are automatically downloaded, processed, and stored locally for fast and efficient searching.
 
+## 📂 Project Structure
+
+- `src/entrypoints`: Entry points for the extension (background script, popup, etc.)
+- `src/components`: React components following Atomic Design (atoms, molecules, organisms, views)
+- `src/ui`: Global styles and UI setup
+- `src/utils`: Utility functions and helpers
+
 ## 🚀 Getting Started (for Developers)
 
 Follow these instructions to set up the development environment.
@@ -78,3 +85,26 @@ npm run build
 ```
 
 This will generate a clean, optimized `dist` directory, which you can then use to install the extension.
+
+## 🧪 Testing and Linting
+
+To ensure code quality, we use Jest for testing and ESLint/Prettier for linting and formatting.
+
+### Running Tests
+
+```bash
+npm test
+```
+
+### Linting
+
+```bash
+npm run lint
+```
+
+### Formatting
+
+```bash
+npm run format
+```
+

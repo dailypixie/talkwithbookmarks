@@ -9,7 +9,7 @@
     "watch": "npm run clean && parcel watch --host localhost src/manifest.json --config @parcel/config-webextension",
     "test": "jest",
     "format": "npx prettier -y --ignore-path .gitignore \"src/**/*.+(js|jsx|ts|tsx)\" --write",
-    "lint:file": "npx --yes @ls-lint/ls-lint@2.2.3 --workdir src",
+    "lint:file": "ls-lint --workdir src",
     "lint:js": "eslint --quiet src --ext js,jsx,ts,tsx",
     "lint": "npm run lint:file && npm run lint:js",
     "typecheck": "tsc --noEmit",
@@ -21,6 +21,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@ls-lint/ls-lint": "2.2.3",
     "@parcel/config-webextension": "^2.9.3",
     "@parcel/transformer-inline-string": "^2.15.4",
     "@types/chrome": "^0.0.242",

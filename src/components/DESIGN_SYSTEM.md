@@ -13,7 +13,7 @@ Design system specification for the `src/components/` architecture. Uses Tailwin
 | **Atoms** | `atoms/` | Primitives: Button, Input, Select, Tabs, Progress |
 | **Molecules** | `molecules/` | Composed components: MessageBubble, ChatInputForm, ModelSelector, etc. |
 | **Organisms** | `organisms/` | Layout + orchestration: ChatHeader, MessageList |
-| **Views** | `views/` | Full screens: MainView, ChatView, SummaryView, IndexingView |
+| **Views** | `views/` | Full screens: MainView, ChatView, SummaryView, IndexingView, ConversationHistory |
 
 ### Stack
 
@@ -233,7 +233,7 @@ All colors use HSL via `hsl(var(--token))` to support opacity modifiers (e.g. `b
 
 | File | Purpose |
 |------|---------|
-| `src/globals.css` | Theme variables (`:root` + `.dark`), `@theme` mapping |
+| `src/ui/globals.css` | Theme variables (`:root` + `.dark`), `@theme` mapping |
 | `tailwind.config.js` | Color aliases, radius, animations |
 | `src/components/atoms/*` | Primitives |
 | `src/utils` (cn) | `clsx` + `tailwind-merge` for class composition |
