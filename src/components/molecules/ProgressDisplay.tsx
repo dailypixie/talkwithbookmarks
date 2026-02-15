@@ -1,4 +1,3 @@
-import React from 'react';
 import { Progress } from '@/components/atoms/progress';
 import { cn } from '@/utils';
 
@@ -8,9 +7,10 @@ export interface ProgressDisplayProps {
   total: number;
   failed?: number;
   status: string;
+  stage: string;
 }
 
-export function ProgressDisplay({ className, processed, total, failed = 0, status }: ProgressDisplayProps) {
+export function ProgressDisplay({ className, processed, total, failed = 0, status, stage }: ProgressDisplayProps) {
   const attempted = processed + failed;
   const percentage = total > 0 ? Math.round((attempted / total) * 100) : 0;
   const percentageCapped = Math.min(percentage, 100);
@@ -32,6 +32,12 @@ export function ProgressDisplay({ className, processed, total, failed = 0, statu
       </div>
       <p className="text-sm text-muted-foreground">
         Status: <span className="font-semibold capitalize text-foreground">{status}</span>
+        {stage && (
+          <>
+            {' '}
+            - Stage: <span className="font-semibold capitalize text-foreground">{stage}</span>
+          </>
+        )}
       </p>
     </div>
   );

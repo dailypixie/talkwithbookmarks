@@ -12,6 +12,9 @@ export function SourceList({ className, sources: rawSources }: SourceListProps) 
   if (!rawSources?.length) return null;
 
   const sources = [...new Map(rawSources?.map((s) => [s.title, s])).values()].filter((s) => s.type !== PageType.CURRENT_PAGE);
+
+  if (sources.length === 0) return null;
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isPinnedOpen, setIsPinnedOpen] = useState(false);
   const [isHovering, setIsHovering] = useState(false);

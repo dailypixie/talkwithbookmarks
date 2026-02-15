@@ -3,7 +3,7 @@ import { ProgressDisplay } from '@/components/molecules/ProgressDisplay';
 import { IndexingControls } from '@/components/molecules/IndexingControls';
 import { IndexingMessage } from '@/components/molecules/IndexingMessage';
 import { IndexingFooter } from '@/components/molecules/IndexingFooter';
-import { IndexingProgress, IndexingStatus } from '@/utils/types';
+import { IndexingProgress, IndexingStatus, PipelineStage } from '@/utils/types';
 import { Button } from '@/components/atoms/button';
 import { Plus } from 'lucide-react';
 import { Runtime } from '@/utils/runtime';
@@ -13,6 +13,7 @@ export function IndexingInterface() {
     total: 0,
     processed: 0,
     status: IndexingStatus.IDLE,
+    stage: PipelineStage.IDLE,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [zeroItemsMessage, setZeroItemsMessage] = useState<string | null>(null);
@@ -74,7 +75,7 @@ export function IndexingInterface() {
     if (confirm('Are you sure you want to clear indexed data?')) {
       try {
         await Runtime.clearIndexedData();
-        setProgress({ total: 0, processed: 0, status: IndexingStatus.IDLE });
+        setProgress({ total: 0, processed: 0, status: IndexingStatus.IDLE, stage: PipelineStage.IDLE });
       } catch (error) {
         console.error('Error clearing data:', error);
       }
@@ -85,7 +86,7 @@ export function IndexingInterface() {
     if (confirm('Are you sure you want to clear all data?')) {
       try {
         await Runtime.clearAllData();
-        setProgress({ total: 0, processed: 0, status: IndexingStatus.IDLE });
+        setProgress({ total: 0, processed: 0, status: IndexingStatus.IDLE, stage: PipelineStage.IDLE });
       } catch (error) {
         console.error('Error clearing data:', error);
       }
@@ -130,7 +131,13 @@ export function IndexingInterface() {
     <div className="p-4 flex flex-col gap-4">
       <div className="bg-card text-card-foreground rounded-lg border border-border p-4 shadow-sm">
         <div className="mb-4">
-          <ProgressDisplay processed={progress.processed} total={progress.total} failed={progress.failed} status={statusLabel} />
+          <ProgressDisplay
+            processed={progress.processed}
+            total={progress.total}
+            failed={progress.failed}
+            status={statusLabel}
+            stage={progress.stage}
+          />
           {zeroItemsMessage && <IndexingMessage message={zeroItemsMessage} />}
         </div>
 

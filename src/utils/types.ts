@@ -94,6 +94,7 @@ export enum PageType {
 
 /** Pipeline processing stages */
 export enum PipelineStage {
+  IDLE = 'idle',
   DOWNLOAD = 'download',
   CHUNK = 'chunk',
 }
@@ -121,7 +122,7 @@ export type ChunkItem = {
   text: string;
   position: number;
   embedding?: number[];
-}
+};
 
 // ======================
 // Interfaces
@@ -174,6 +175,7 @@ export interface IndexingProgress {
   failed?: number;
   current?: string;
   status: IndexingStatus;
+  stage: PipelineStage;
 }
 
 /** Statistics from a completed indexing run */
