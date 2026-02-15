@@ -3,9 +3,10 @@ import { ProgressDisplay } from '@/components/molecules/ProgressDisplay';
 import { IndexingControls } from '@/components/molecules/IndexingControls';
 import { IndexingMessage } from '@/components/molecules/IndexingMessage';
 import { IndexingFooter } from '@/components/molecules/IndexingFooter';
-import { MessageAction, IndexingProgress, IndexingStatus } from '@/utils/types';
+import { IndexingProgress, IndexingStatus } from '@/utils/types';
 import { Button } from '@/components/atoms/button';
 import { Plus } from 'lucide-react';
+import { Runtime } from '@/utils/runtime';
 
 export function IndexingInterface() {
   const [progress, setProgress] = useState<IndexingProgress>({
@@ -27,9 +28,7 @@ export function IndexingInterface() {
 
   const getProgress = async () => {
     try {
-      const response = await chrome.runtime.sendMessage({
-        action: MessageAction.GET_INDEXING_PROGRESS,
-      });
+      const response = await Runtime.getIndexingProgress();
       setProgress(response);
     } catch (error) {
       console.error('Error getting progress:', error);
@@ -40,9 +39,7 @@ export function IndexingInterface() {
     setZeroItemsMessage(null);
     setIsLoading(true);
     try {
-      const response = await chrome.runtime.sendMessage({
-        action: MessageAction.START_INDEXING,
-      });
+      const response = await Runtime.startIndexing();
       const itemsQueued = response?.itemsQueued ?? -1;
       if (itemsQueued === 0) {
         setZeroItemsMessage('No new bookmarks to index. All bookmarks are already indexed or recently failed (retry after 24h).');
@@ -57,9 +54,7 @@ export function IndexingInterface() {
 
   const handlePause = async () => {
     try {
-      await chrome.runtime.sendMessage({
-        action: MessageAction.PAUSE_INDEXING,
-      });
+      await Runtime.pauseIndexing();
       await getProgress();
     } catch (error) {
       console.error('Error pausing:', error);
@@ -68,9 +63,7 @@ export function IndexingInterface() {
 
   const handleResume = async () => {
     try {
-      await chrome.runtime.sendMessage({
-        action: MessageAction.RESUME_INDEXING,
-      });
+      await Runtime.resumeIndexing();
       await getProgress();
     } catch (error) {
       console.error('Error resuming:', error);
@@ -80,9 +73,7 @@ export function IndexingInterface() {
   const handleClear = async () => {
     if (confirm('Are you sure you want to clear all data?')) {
       try {
-        await chrome.runtime.sendMessage({
-          action: MessageAction.CLEAR_DATA,
-        });
+        await Runtime.clearData();
         setProgress({ total: 0, processed: 0, status: IndexingStatus.IDLE });
       } catch (error) {
         console.error('Error clearing data:', error);
@@ -102,10 +93,7 @@ export function IndexingInterface() {
     setManualUrlMessage(null);
     setIsQueueingUrls(true);
     try {
-      const response = await chrome.runtime.sendMessage({
-        action: MessageAction.INDEX_MANUAL_URLS,
-        urls,
-      });
+      const response = await Runtime.IndexManualUrls(urls);
       if (response?.success) {
         if (response.count > 0) {
           setManualUrlMessage({ type: 'success', text: `Queued ${response.count} URL${response.count === 1 ? '' : 's'} for indexing.` });
@@ -147,9 +135,7 @@ export function IndexingInterface() {
 
       <div className="bg-card text-card-foreground rounded-lg border border-border p-4 shadow-sm">
         <h3 className="text-sm font-medium mb-1">Index URLs</h3>
-        <p className="text-xs text-muted-foreground mb-3">
-          Enter a list of URLs (one per line) to add them to the indexing queue.
-        </p>
+        <p className="text-xs text-muted-foreground mb-3">Enter a list of URLs (one per line) to add them to the indexing queue.</p>
         <textarea
           className="flex min-h-[140px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 resize-y"
           placeholder={'https://example.com/page1\nhttps://example.com/page2'}
@@ -172,7 +158,12 @@ export function IndexingInterface() {
         <div className="flex justify-end mt-3">
           <Button
             onClick={handleQueueUrls}
-            disabled={!manualUrls.trim() || isQueueingUrls || progress.status === IndexingStatus.INDEXING || progress.status === IndexingStatus.PAUSED}
+            disabled={
+              !manualUrls.trim() ||
+              isQueueingUrls ||
+              progress.status === IndexingStatus.INDEXING ||
+              progress.status === IndexingStatus.PAUSED
+            }
           >
             <Plus className="mr-2 h-4 w-4" /> {isQueueingUrls ? 'Queueing...' : 'Queue URLs'}
           </Button>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SUMMARY_CONFIG } from '@/utils/constants';
-import { cleanContent, cn, MessageAction, withTimeout } from '@/utils';
+import { cleanContent, cn, MessageAction, withTimeout, Runtime } from '@/utils';
 import { SummaryHeader } from '@/components/molecules/SummaryHeader';
 import { SummaryCard } from '@/components/molecules/SummaryCard';
 import { NoPageSelected } from '@/components/molecules/NoPageSelected';
@@ -27,7 +27,7 @@ export function SummaryInterface({ className, isActive = false }: SummaryInterfa
   useEffect(() => {
     const checkModel = async () => {
       try {
-        const res = await chrome.runtime.sendMessage({ action: MessageAction.GET_MODEL_STATUS });
+        const res = await Runtime.getModelStatus();
         setModelLoaded(res?.loaded ?? false);
       } catch (e) {
         console.error('Failed to check model status:', e);
@@ -38,8 +38,8 @@ export function SummaryInterface({ className, isActive = false }: SummaryInterfa
       if (msg.action === MessageAction.MODEL_LOADED) setModelLoaded(true);
       else if (msg.action === MessageAction.MODEL_UNLOADED) setModelLoaded(false);
     };
-    chrome.runtime.onMessage.addListener(handleMessage);
-    return () => chrome.runtime.onMessage.removeListener(handleMessage);
+    Runtime.onMessage(handleMessage);
+    return () => Runtime.removeMessageListener(handleMessage);
   }, []);
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export function SummaryInterface({ className, isActive = false }: SummaryInterfa
       setIsLoading(true);
       setError(null);
       try {
-        const response = await chrome.runtime.sendMessage({ action: MessageAction.GET_PAGE_SUMMARY, url: pageUrl });
+        const response = await Runtime.getPageSummary(pageUrl);
         if (response?.summary) {
           setSummary(cleanContent(response.summary ?? ''));
           setSummaryModel(response.summaryModel ?? null);
@@ -122,12 +122,7 @@ export function SummaryInterface({ className, isActive = false }: SummaryInterfa
       }
 
       const response = await withTimeout(
-        chrome.runtime.sendMessage({
-          action: MessageAction.GENERATE_SUMMARY,
-          url: pageUrl,
-          content,
-          title: pageTitle,
-        }),
+        Runtime.generateSummary(pageUrl, content, pageTitle),
         SUMMARY_CONFIG.GENERATION_TIMEOUT_MS,
         'Summary generation timed out. Try again.'
       );
@@ -161,12 +156,7 @@ export function SummaryInterface({ className, isActive = false }: SummaryInterfa
       }
 
       const response = await withTimeout(
-        chrome.runtime.sendMessage({
-          action: MessageAction.GENERATE_SUMMARY,
-          url: pageUrl,
-          content,
-          title: pageTitle,
-        }),
+        Runtime.generateSummary(pageUrl, content, pageTitle),
         SUMMARY_CONFIG.GENERATION_TIMEOUT_MS,
         'Summary generation timed out. Try again.'
       );

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MessageAction } from '@/utils';
+import { MessageAction, Runtime } from '@/utils';
 
 export interface UseModelStateResult {
   models: string[];
@@ -47,8 +47,8 @@ export function useModelState(): UseModelStateResult {
       }
     };
 
-    chrome.runtime.onMessage.addListener(handleMessage);
-    return () => chrome.runtime.onMessage.removeListener(handleMessage);
+    Runtime.onMessage(handleMessage);
+    return () => Runtime.removeMessageListener(handleMessage);
   }, []);
 
   const fetchModels = async () => {
@@ -56,7 +56,7 @@ export function useModelState(): UseModelStateResult {
     try {
       let recs = new Set<string>();
       try {
-        const r = await chrome.runtime.sendMessage({ action: MessageAction.GET_RECOMMENDED_MODELS });
+        const r = await Runtime.getRecommendedModels();
         if (r?.recommended) {
           recs = new Set(Object.values(r.recommended) as string[]);
           setRecommendedModels(recs);
@@ -64,7 +64,7 @@ export function useModelState(): UseModelStateResult {
       } catch {
         // ignore
       }
-      const res = await chrome.runtime.sendMessage({ action: MessageAction.GET_MODELS });
+      const res = await Runtime.getModels();
       if (Array.isArray(res)) {
         const sorted = [...res].sort((a, b) => {
           const isRecA = recs.has(a);
@@ -89,7 +89,7 @@ export function useModelState(): UseModelStateResult {
 
   const fetchCachedModels = async () => {
     try {
-      const res = await chrome.runtime.sendMessage({ action: MessageAction.GET_CACHED_MODELS });
+      const res = await Runtime.getCachedModels();
       if (res?.cachedModels) setCachedModels(new Set(res.cachedModels));
     } catch (e) {
       console.error(e);
@@ -98,7 +98,7 @@ export function useModelState(): UseModelStateResult {
 
   const checkModelStatus = async () => {
     try {
-      const res = await chrome.runtime.sendMessage({ action: MessageAction.GET_MODEL_STATUS });
+      const res = await Runtime.getModelStatus();
       if (res?.loaded) {
         setSelectedModel(res.currentModel ?? '');
         setModelLoaded(true);
@@ -119,7 +119,7 @@ export function useModelState(): UseModelStateResult {
     if (!modelId) return;
     setModelLoadingText('Initializing...');
     try {
-      const res = await chrome.runtime.sendMessage({ action: MessageAction.LOAD_MODEL, modelId });
+      const res = await Runtime.loadModel(modelId);
       if (res?.success) {
         setSelectedModel(modelId);
         setModelLoaded(true);
@@ -134,7 +134,7 @@ export function useModelState(): UseModelStateResult {
 
   const unloadModel = async () => {
     try {
-      await chrome.runtime.sendMessage({ action: MessageAction.UNLOAD_MODEL });
+      await Runtime.unloadModel();
       setModelLoaded(false);
       setSelectedModel('');
     } catch (e) {

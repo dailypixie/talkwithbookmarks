@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 
-import { cleanContent, fetchPageContents, getPageUrl, isThinking } from '@/utils';
+import { cleanContent, fetchPageContents, getPageUrl, isThinking, Runtime } from '@/utils';
 import { MessageListHandle } from '@/components/organisms/MessageList';
 import { MessageAction, PageType, Roles, Source } from '@/utils/types';
 
@@ -47,14 +47,14 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
       }
     };
 
-    chrome.runtime.onMessage.addListener(handleMessage);
-    return () => chrome.runtime.onMessage.removeListener(handleMessage);
+    Runtime.onMessage(handleMessage);
+    return () => Runtime.removeMessageListener(handleMessage);
   }, []);
 
   const loadHistory = async (conversationId?: number) => {
     try {
       const url = await getPageUrl();
-      const res = await chrome.runtime.sendMessage({ action: MessageAction.GET_HISTORY, url, conversationId });
+      const res = await Runtime.getHistory(url, conversationId);
       if (res?.messages) {
         const cleaned = res.messages.map((m: { role: string; content: string; sources?: Source[] }) => ({
           role: m.role as Roles,
@@ -98,11 +98,7 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
 
     let ragContext = '';
     try {
-      const searchRes = await chrome.runtime.sendMessage({
-        action: MessageAction.SEARCH_CONTEXT,
-        query: userMsg,
-        topK: 3,
-      });
+      const searchRes = await Runtime.searchContext(userMsg, 3);
 
       console.log('=========Search results for RAG context:========', searchRes);
 
@@ -148,14 +144,13 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
         url: s.url,
         type: s.type === 'current_page' ? PageType.CURRENT_PAGE : PageType.BOOKMARK,
       }));
-      await chrome.runtime.sendMessage({
-        action: MessageAction.CHAT,
-        messages: [{ role: 'user', content: prompt }],
-        originalContent: userMsg,
+      await Runtime.chat(
+        [{ role: 'user', content: prompt }],
+        userMsg,
         url,
-        context: fullContext,
-        sources: sourcesForDb,
-      });
+        fullContext,
+        sourcesForDb
+      );
     } catch (e) {
       messageListRef.current?.setLastAssistantContent('Error: ' + e);
     }
@@ -165,7 +160,7 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
   };
 
   const handleStop = async () => {
-    await chrome.runtime.sendMessage({ action: MessageAction.STOP });
+    await Runtime.stop();
     setIsGenerating(false);
     setChatLoadingText('');
   };

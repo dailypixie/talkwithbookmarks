@@ -3,6 +3,7 @@ import { Conversation, MessageAction } from '@/utils/types';
 import { ConversationList } from '@/components/molecules/ConversationList';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from '@/components/atoms/button';
+}import { Runtime } from '@/utils/runtime';
 
 interface ConversationHistoryProps {
   onSelectConversation: (conversation: Conversation) => void;
@@ -27,11 +28,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   const loadConversations = async () => {
     setLoading(true);
     try {
-      const response = await chrome.runtime.sendMessage({
-        action: MessageAction.GET_CONVERSATION_LIST,
-        limit: 50,
-        offset: 0,
-      });
+      const response = await Runtime.getConversationList();
 
       if (response && response.conversations) {
         setConversations(response.conversations);
