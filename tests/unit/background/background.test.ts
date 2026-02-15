@@ -302,7 +302,7 @@ describe('Background message routing', () => {
       mockGetStatus.mockReturnValue({
         isRunning: true,
         isPaused: false,
-        metrics: { stage: PipelineStage.CHUNK },
+        metrics: { stage: PipelineStage.CHUNK, itemsIndexed: 3, itemsFailed: 0 },
       });
       const result = await runListener({ action: MessageAction.GET_INDEXING_PROGRESS });
       expect(result).toEqual({
@@ -321,7 +321,7 @@ describe('Background message routing', () => {
       mockGetStatus.mockReturnValue({
         isRunning: true,
         isPaused: true,
-        metrics: { stage: PipelineStage.DOWNLOAD },
+        metrics: { stage: PipelineStage.DOWNLOAD, itemsIndexed: 3, itemsFailed: 0 },
       });
       const result = await runListener({ action: MessageAction.GET_INDEXING_PROGRESS });
       expect(result).toEqual({
