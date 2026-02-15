@@ -144,13 +144,7 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
         url: s.url,
         type: s.type === 'current_page' ? PageType.CURRENT_PAGE : PageType.BOOKMARK,
       }));
-      await Runtime.chat(
-        [{ role: 'user', content: prompt }],
-        userMsg,
-        url,
-        fullContext,
-        sourcesForDb
-      );
+      await Runtime.chat([{ role: 'user', content: prompt }], userMsg, url, fullContext, sourcesForDb);
     } catch (e) {
       messageListRef.current?.setLastAssistantContent('Error: ' + e);
     }

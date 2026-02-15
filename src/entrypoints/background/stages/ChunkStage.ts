@@ -7,6 +7,7 @@ import { PipelineStage, StageQueueItem } from '@/utils/types';
 import { StageProcessor } from '@/entrypoints/background/stages/StageProcessor';
 import { extractTextFromHTML, splitTextSemantic } from '@/utils/html';
 import { indexingLogger as logger } from '@/utils/logger';
+import { getEmbeddings } from '../search/embedding';
 
 export class ChunkStage extends StageProcessor {
   readonly stage = PipelineStage.CHUNK;
@@ -37,13 +38,19 @@ export class ChunkStage extends StageProcessor {
     // Create semantic chunks with overlap
     const rawChunks = splitTextSemantic(textContent, this.CHUNK_SIZE, this.CHUNK_OVERLAP);
 
-    // Normalize chunks to always have position
-    const chunks = rawChunks.map((chunk, index) => {
-      if (typeof chunk === 'string') {
-        return { text: chunk, position: index };
-      }
-      return chunk;
-    });
+    const chunkTexts = rawChunks.map((chunk) => chunk.text);
+    const embeddings = await getEmbeddings(chunkTexts);
+
+    if (embeddings.length !== rawChunks.length) {
+      throw new Error(`Embedding count mismatch: ${embeddings.length} embeddings for ${rawChunks.length} chunks`);
+    }
+
+    // Map each chunk to its corresponding embedding by index (order must be preserved)
+    const chunks = rawChunks.map((chunk, index) => ({
+      text: chunk.text,
+      position: index,
+      embedding: embeddings[index],
+    }));
 
     logger.debug(`Chunked ${item.url}: ${chunks.length} chunks from ${textContent.length} chars`);
 

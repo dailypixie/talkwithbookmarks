@@ -3,6 +3,14 @@
  * Centralizes magic numbers and configuration values
  */
 
+// Embedding Configuration
+export const EMBEDDING_CONFIG = {
+  /** Maximum number of text chunks to embed in a single batch */
+  MAX_BATCH_SIZE: 50,
+  /** Model identifier for embeddings */
+  MODEL: 'snowflake-arctic-embed-m-q0f32-MLC-b4',
+} as const;
+
 // Text Chunking Configuration
 export const CHUNKING_CONFIG = {
   /** Default maximum size for text chunks in characters */
