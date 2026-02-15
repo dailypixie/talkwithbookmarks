@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Conversation, MessageAction } from '@/utils/types';
+import { Conversation } from '@/utils/types';
 import { ConversationList } from '@/components/molecules/ConversationList';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from '@/components/atoms/button';
