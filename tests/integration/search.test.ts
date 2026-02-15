@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { handleSearchContext } from '@/entrypoints/background/handlers/searchContext';
+import { handleSearchContext } from '@/entrypoints/background/search/searchContext';
 import { db, addSlice } from '@/entrypoints/background/db';
 
 describe('Integration: Search Context', () => {

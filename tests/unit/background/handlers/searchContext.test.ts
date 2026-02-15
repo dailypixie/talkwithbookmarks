@@ -2,7 +2,7 @@
  * Unit tests for src/background/handlers/searchContext.ts
  */
 
-import { handleSearchContext } from '@/entrypoints/background/handlers/searchContext';
+import { handleSearchContext } from '@/entrypoints/background/search/searchContext';
 import { SliceItem } from '@/utils/types';
 
 jest.mock('@/entrypoints/background/db', () => ({
@@ -235,9 +235,7 @@ describe('handleSearchContext', () => {
   });
 
   it('returns empty results when url has slices but query matches none', async () => {
-    const slices = [
-      slice({ id: '1', url: 'https://example.com', title: 'Alpha', text: 'no match here' }),
-    ];
+    const slices = [slice({ id: '1', url: 'https://example.com', title: 'Alpha', text: 'no match here' })];
     mockGetSlicesByUrl.mockResolvedValue(slices);
 
     const result = await handleSearchContext({
@@ -287,10 +285,7 @@ describe('handleSearchContext', () => {
     });
 
     it('is case insensitive', async () => {
-      const slices = [
-        slice({ id: '1', title: 'REACT LIBRARY', text: 'Content' }),
-        slice({ id: '2', title: 'Vue', text: 'vue framework' }),
-      ];
+      const slices = [slice({ id: '1', title: 'REACT LIBRARY', text: 'Content' }), slice({ id: '2', title: 'Vue', text: 'vue framework' })];
       mockGetAllSlices.mockResolvedValue(slices);
 
       const result = await handleSearchContext({ query: 'react', topK: 5 });
@@ -339,10 +334,7 @@ describe('handleSearchContext', () => {
     });
 
     it('scores both title and text; title bonus stacks with occurrence count', async () => {
-      const slices = [
-        slice({ id: '1', title: 'React', text: 'React' }),
-        slice({ id: '2', title: 'Vue', text: 'React React React' }),
-      ];
+      const slices = [slice({ id: '1', title: 'React', text: 'React' }), slice({ id: '2', title: 'Vue', text: 'React React React' })];
       mockGetAllSlices.mockResolvedValue(slices);
 
       const result = await handleSearchContext({ query: 'React', topK: 5 });

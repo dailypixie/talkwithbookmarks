@@ -17,6 +17,7 @@ const mockFetchItems = jest.fn();
 const mockStart = jest.fn();
 const mockPause = jest.fn();
 const mockResume = jest.fn();
+const mockStop = jest.fn();
 const mockGetStatus = jest.fn();
 const mockGetIndexingStats = jest.fn();
 const mockClearDatabase = jest.fn();
@@ -33,6 +34,11 @@ const mockHandleGetHistory = jest.fn();
 const mockHandleSearchContext = jest.fn();
 const mockHandleGetPageSummary = jest.fn();
 const mockHandleGenerateSummary = jest.fn();
+const mockHandleSearchVectorContext = jest.fn();
+
+jest.mock('@/entrypoints/background/search/vector', () => ({
+  handleSearchVectorContext: mockHandleSearchVectorContext,
+}));
 
 jest.mock('@/entrypoints/background/bookmarks', () => ({
   bookmarksDataSource: { fetchItems: mockFetchItems },
@@ -43,6 +49,7 @@ jest.mock('@/entrypoints/background/IndexingPipeline', () => ({
     start: mockStart,
     pause: mockPause,
     resume: mockResume,
+    stop: mockStop,
     getStatus: mockGetStatus,
   },
 }));
@@ -77,7 +84,7 @@ jest.mock('@/entrypoints/background/handlers/chat', () => ({
   handleGetHistory: mockHandleGetHistory,
 }));
 
-jest.mock('@/entrypoints/background/handlers/searchContext', () => ({
+jest.mock('@/entrypoints/background/search/searchContext', () => ({
   handleSearchContext: mockHandleSearchContext,
 }));
 
