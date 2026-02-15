@@ -20,8 +20,9 @@ import {
   handleStop,
 } from '@/entrypoints/background/handlers/model';
 import { handleChat, handleGetHistory, handleGetConversations } from '@/entrypoints/background/handlers/chat';
-import { handleSearchContext } from '@/entrypoints/background/handlers/searchContext';
+import { handleSearchContext } from '@/entrypoints/background/search/searchContext';
 import { handleGetPageSummary, handleGenerateSummary } from '@/entrypoints/background/handlers/summary';
+import { handleSearchVectorContext } from '@/entrypoints/background/search/vector';
 
 logger.info('Background service worker started');
 
@@ -92,6 +93,10 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
       }
       if (message.action === MessageAction.SEARCH_CONTEXT) {
         sendResponse(await handleSearchContext(message));
+        return;
+      }
+      if (message.action === MessageAction.SEARCH_VECTOR_CONTEXT) {
+        sendResponse(await handleSearchVectorContext(message));
         return;
       }
       if (message.action === MessageAction.GET_PAGE_SUMMARY) {

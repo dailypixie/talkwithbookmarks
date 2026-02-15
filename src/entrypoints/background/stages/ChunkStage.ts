@@ -1,8 +1,3 @@
-/**
- * Chunk Stage Processor
- * Stage 2: Extracts text from HTML and creates semantic chunks
- */
-
 import { PipelineStage, StageQueueItem } from '@/utils/types';
 import { StageProcessor } from '@/entrypoints/background/stages/StageProcessor';
 import { extractTextFromHTML, splitTextSemantic } from '@/utils/html';

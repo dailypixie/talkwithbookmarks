@@ -98,7 +98,7 @@ export function useChatState({ messageListRef, modelLoaded }: UseChatStateParams
 
     let ragContext = '';
     try {
-      const searchRes = await Runtime.searchContext(userMsg, 3);
+      const searchRes = await Runtime.hybridSearch(userMsg, 3);
 
       console.log('=========Search results for RAG context:========', searchRes);
 

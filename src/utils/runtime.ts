@@ -116,6 +116,23 @@ export class Runtime {
     });
   }
 
+  static searchVectorContext(query: string, topK: number) {
+    return chrome.runtime.sendMessage({
+      action: MessageAction.SEARCH_VECTOR_CONTEXT,
+      query,
+      topK,
+    });
+  }
+
+  static hybridSearch(query: string, topK: number): Promise<any> {
+    const resVectorPromise = this.searchVectorContext(query, topK);
+    const resBM25Promise = this.searchContext(query, topK);
+    return Promise.all([resVectorPromise, resBM25Promise]).then(([vector, bm25]) => {
+      // Simple hybrid logic: combine and deduplicate results
+      return { ...vector, bm25, results: [...vector.results, ...bm25.results] };
+    });
+  }
+
   static stop() {
     return chrome.runtime.sendMessage({
       action: MessageAction.STOP,

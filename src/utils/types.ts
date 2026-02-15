@@ -37,6 +37,7 @@ export enum MessageAction {
   CHAT = 'chat',
   CHAT_STREAM = 'chatStream',
   SEARCH_CONTEXT = 'searchContext',
+  SEARCH_VECTOR_CONTEXT = 'searchVectorContext',
 
   // Summary
   GET_PAGE_SUMMARY = 'getPageSummary',

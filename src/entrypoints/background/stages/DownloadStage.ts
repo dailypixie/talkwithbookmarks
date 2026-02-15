@@ -1,8 +1,3 @@
-/**
- * Download Stage Processor
- * Stage 1: Fetches HTML content from URLs
- */
-
 import { PipelineStage, StageQueueItem } from '@/utils/types';
 import { StageProcessor } from '@/entrypoints/background/stages/StageProcessor';
 import { indexingLogger as logger } from '@/utils/logger';

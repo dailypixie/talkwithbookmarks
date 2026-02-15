@@ -21,7 +21,7 @@ export interface SearchContextResponse {
  * Score a slice by simple keyword overlap with the query.
  * Returns a number (higher = more relevant).
  */
-function scoreSlice(slice: SliceItem, queryLower: string, queryWords: string[]): number {
+function scoreSlice(slice: SliceItem, queryWords: string[]): number {
   const text = `${slice.title} ${slice.text}`.toLowerCase();
   let score = 0;
   for (const word of queryWords) {
@@ -73,7 +73,7 @@ export async function handleSearchContext(message: { query?: string; topK?: numb
 
     const scored = slices.map((slice) => ({
       slice,
-      score: scoreSlice(slice, queryLower, queryWords),
+      score: scoreSlice(slice, queryWords),
     }));
 
     scored.sort((a, b) => b.score - a.score);
