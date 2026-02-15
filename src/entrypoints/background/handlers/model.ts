@@ -23,7 +23,10 @@ export async function handleLoadModel(modelId: string): Promise<{ success?: bool
 export async function handleUnloadModel(): Promise<{ success?: boolean; error?: string }> {
   try {
     await chrome.storage.local.remove('selectedModel');
-    const response = (await sendMessageToOffscreenWithRetry({ action: MessageAction.OFFSCREEN_UNLOAD })) as { success?: boolean; error?: string };
+    const response = (await sendMessageToOffscreenWithRetry({ action: MessageAction.OFFSCREEN_UNLOAD })) as {
+      success?: boolean;
+      error?: string;
+    };
     return response ?? { success: true };
   } catch (e) {
     return { error: String(e) };
@@ -39,7 +42,7 @@ export async function handleGetModelStatus(): Promise<{ loaded?: boolean; curren
     };
     return response ?? { loaded: false };
   } catch (e) {
-    logger.error('Model status error', e as Error);
+    logger.warn('Model status error', e as Error);
     return { loaded: false, error: String(e) };
   }
 }
@@ -55,7 +58,9 @@ export async function handleGetModels(): Promise<string[] | { error: string }> {
 
 export async function handleGetCachedModels(): Promise<{ cachedModels: string[]; error?: string }> {
   try {
-    const response = (await sendMessageToOffscreenWithRetry({ action: MessageAction.OFFSCREEN_GET_CACHED_MODELS })) as { cachedModels?: string[] };
+    const response = (await sendMessageToOffscreenWithRetry({ action: MessageAction.OFFSCREEN_GET_CACHED_MODELS })) as {
+      cachedModels?: string[];
+    };
     return { cachedModels: response?.cachedModels ?? [] };
   } catch (e) {
     return { cachedModels: [], error: String(e) };

@@ -2,7 +2,7 @@
  * Simplified Pipeline for Bookmarks Processing
  * Coordinates 2-stage indexing pipeline: Download → Chunk
  */
-import { addEmbeddingToSlice, addPageToList, addSlice, getPageByUrl, updateListItemProcessedAt } from '@/entrypoints/background/db';
+import { addPageToList, addSlice, getPageByUrl, updateListItemProcessedAt } from '@/entrypoints/background/db';
 import {
   PageItem,
   PipelineConfig,
@@ -18,14 +18,12 @@ import {
 import { pipelineLogger as logger } from '@/utils/logger';
 import { downloadStage, chunkStage, StageProcessor } from '@/entrypoints/background/stages';
 import { pipelineEvents } from '@/entrypoints/background/events';
-import { embeddingStage } from './stages/EmbeddingStage';
 
 // Stage configuration with their processors
 const STAGES: { stage: PipelineStage; processor: StageProcessor }[] = [
   { stage: PipelineStage.DOWNLOAD, processor: downloadStage },
   { stage: PipelineStage.CHUNK, processor: chunkStage },
   // { stage: PipelineStage.EMBEDDING, processor: embeddingStage },
-
 ];
 
 // Default concurrency limits per stage
@@ -107,7 +105,7 @@ export class IndexingPipeline {
         try {
           await addPageToList(item);
         } catch (error) {
-          logger.error('Error adding page to list', error as Error);
+          logger.warn('Error adding page to list', error as Error);
         }
       }
 
@@ -153,7 +151,7 @@ export class IndexingPipeline {
         })
       );
     } catch (error) {
-      logger.error('Pipeline error', error as Error);
+      logger.warn('Pipeline error', error as Error);
       pipelineEvents.dispatchEvent(
         new CustomEvent<PipelineEvent>('pipeline-event', {
           detail: {
@@ -176,6 +174,8 @@ export class IndexingPipeline {
    */
   private async processStage(stage: PipelineStage, processor: StageProcessor, items: StageQueueItem[]): Promise<void> {
     logger.info(`Processing stage: ${stage}`, { itemCount: items.length });
+
+    this.initializeMetrics();
 
     await processor.setup();
 
@@ -281,7 +281,7 @@ export class IndexingPipeline {
         await updateListItemProcessedAt(page);
       }
 
-      logger.error(`Item failed in ${item.stage}: ${item.url}`, error as Error);
+      logger.warn(`Item failed in ${item.stage}: ${item.url}`, error as Error);
     } finally {
       const duration = Date.now() - startTime;
       const metrics = this.stageMetrics.get(item.stage);

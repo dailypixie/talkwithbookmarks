@@ -12,7 +12,7 @@ export async function handleGetPageSummary(url: string): Promise<{ summary: stri
     }
     return { summary: null, exists: !!page };
   } catch (e) {
-    logger.error('GetPageSummary error', e as Error);
+    logger.warn('GetPageSummary error', e as Error);
     return { summary: null, exists: false };
   }
 }
@@ -23,7 +23,9 @@ export async function handleGenerateSummary(
   title: string
 ): Promise<{ summary: string | null; summaryModel?: string; error?: string }> {
   try {
-    const statusResponse = (await sendMessageToOffscreenWithRetry({ action: MessageAction.OFFSCREEN_GET_STATUS })) as { currentModel?: string };
+    const statusResponse = (await sendMessageToOffscreenWithRetry({ action: MessageAction.OFFSCREEN_GET_STATUS })) as {
+      currentModel?: string;
+    };
     const currentModel = statusResponse?.currentModel;
 
     const truncatedContent =
@@ -55,7 +57,7 @@ Summary:`;
     const errorMessage = response?.error ?? 'No response from LLM. Make sure a model is loaded.';
     return { summary: null, error: errorMessage };
   } catch (e) {
-    logger.error('GenerateSummary error', e as Error);
+    logger.warn('GenerateSummary error', e as Error);
     return { summary: null, error: String(e) };
   }
 }

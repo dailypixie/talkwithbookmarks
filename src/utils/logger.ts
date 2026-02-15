@@ -17,7 +17,7 @@ export function setLogLevel(level: LogLevel): void {
 }
 
 export class Logger {
-  constructor(private prefix: string) {}
+  constructor(private prefix: string) { }
 
   private shouldLog(level: LogLevel): boolean {
     return level >= globalLogLevel;
@@ -76,3 +76,4 @@ export const dbLogger = new Logger('Database');
 export const backgroundLogger = new Logger('Background');
 export const bookmarksLogger = new Logger('Bookmarks');
 export const pipelineLogger = new Logger('Pipeline');
+export const embeddingLogger = new Logger('Embedding');

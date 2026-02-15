@@ -50,7 +50,7 @@ export async function ensureOffscreen(): Promise<void> {
     chrome.storage.local.get('selectedModel', (result: { selectedModel?: string }) => {
       if (result.selectedModel) {
         sendMessageToOffscreenWithRetry({ action: MessageAction.OFFSCREEN_LOAD_MODEL, modelId: result.selectedModel }).catch((e) =>
-          logger.error('Auto-load failed', e as Error)
+          logger.warn('Auto-load failed', e as Error)
         );
       }
     });
@@ -60,7 +60,7 @@ export async function ensureOffscreen(): Promise<void> {
       offscreenCreated = true;
       await waitForOffscreen();
     } else {
-      logger.error('Failed to create offscreen', e as Error);
+      logger.warn('Failed to create offscreen', e as Error);
     }
   }
 }

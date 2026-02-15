@@ -33,7 +33,7 @@ initializeOffscreen();
 try {
   logger.info('Database initialized');
 } catch (error) {
-  logger.error('Failed to initialize database', error as Error);
+  logger.warn('Failed to initialize database', error as Error);
 }
 
 // Forward/bubble stream and model events (handled directly by extension UIs)
@@ -229,7 +229,7 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
           sendResponse({ error: 'Unknown action' });
       }
     } catch (error) {
-      logger.error('Error handling message', error as Error);
+      logger.warn('Error handling message', error as Error);
       sendResponse({ error: (error as Error).message });
     }
   })();

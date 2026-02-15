@@ -63,7 +63,7 @@ export async function handleChat(
 
     return { ...response, conversationId };
   } catch (e) {
-    logger.error('Chat error', e as Error);
+    logger.warn('Chat error', e as Error);
     return { error: String(e) };
   }
 }
@@ -106,7 +106,7 @@ export async function handleGetHistory(
 
     return { messages: [] };
   } catch (e) {
-    logger.error('GetHistory error', e as Error);
+    logger.warn('GetHistory error', e as Error);
     return { messages: [], error: (e as Error).message };
   }
 }
@@ -116,7 +116,7 @@ export async function handleGetConversations(limit = 20, offset = 0): Promise<{ 
     const convers = await DbModule.getConversations(limit, offset);
     return { conversations: convers };
   } catch (e) {
-    logger.error('GetConversations error', e as Error);
+    logger.warn('GetConversations error', e as Error);
     return { conversations: [], error: (e as Error).message };
   }
 }

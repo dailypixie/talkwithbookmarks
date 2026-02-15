@@ -141,7 +141,7 @@ export function extractTextFromHTML(html: string): string {
 
     return text;
   } catch (error) {
-    logger.error('Failed to extract text', error as Error);
+    logger.warn('Failed to extract text', error as Error);
     return '';
   }
 }

@@ -55,7 +55,7 @@ export async function addPageToList(item: PageItem): Promise<void> {
   try {
     await currentDb().pages.add(item);
   } catch (error) {
-    logger.error('Error adding page to list', error as Error);
+    logger.warn('Error adding page to list', error as Error);
   }
 }
 
@@ -63,7 +63,7 @@ export async function updateListItemProcessedAt(item: PageItem): Promise<void> {
   try {
     await currentDb().pages.put(item);
   } catch (error) {
-    logger.error('Error updating list item', error as Error);
+    logger.warn('Error updating list item', error as Error);
   }
 }
 
@@ -99,7 +99,7 @@ export async function updatePageSummary(url: string, summary: string, summaryMod
     }
     logger.info('Updated page summary', { url, summaryModel });
   } catch (error) {
-    logger.error('Error updating page summary', error as Error);
+    logger.warn('Error updating page summary', error as Error);
   }
 }
 
@@ -176,7 +176,7 @@ export async function clearDatabase(): Promise<void> {
     });
     logger.info('Database cleared');
   } catch (error) {
-    logger.error('Error clearing database', error as Error);
+    logger.warn('Error clearing database', error as Error);
   }
 }
 
@@ -186,7 +186,7 @@ export async function clearIndexedData(): Promise<void> {
     await currentDb().slices.clear();
     logger.info('Indexed data cleared');
   } catch (error) {
-    logger.error('Error clearing indexed data', error as Error);
+    logger.warn('Error clearing indexed data', error as Error);
   }
 }
 
