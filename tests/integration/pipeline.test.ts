@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { SimplePipeline } from '@/entrypoints/background/SimplePipeline';
+
+// Mock embedding module to avoid loading @mlc-ai/web-llm (ESM) in Jest
+jest.mock('@/entrypoints/background/search/embedding', () => ({
+  getEmbeddings: jest.fn((texts: string[]) => Promise.resolve(texts.map(() => [0.1, 0.2, 0.3]))),
+}));
+
+import { IndexingPipeline } from '@/entrypoints/background/IndexingPipeline';
 import { db, getPageByUrl, getSlicesByUrl } from '@/entrypoints/background/db';
 import { pipelineEvents } from '@/entrypoints/background/events';
 import { PageItem } from '@/utils/types';
@@ -18,7 +24,7 @@ const MOCK_HTML = `
 `;
 
 describe('Integration: SimplePipeline', () => {
-  let pipeline: SimplePipeline;
+  let pipeline: IndexingPipeline;
   const TEST_URL = 'https://integration-test.com/page1';
 
   beforeEach(async () => {
@@ -27,7 +33,7 @@ describe('Integration: SimplePipeline', () => {
     await db.open();
 
     // Reset pipeline instance
-    pipeline = new SimplePipeline();
+    pipeline = new IndexingPipeline();
 
     // Setup fetch mock
     (global.fetch as jest.Mock).mockImplementation(() =>

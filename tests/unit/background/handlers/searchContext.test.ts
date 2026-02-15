@@ -141,4 +141,213 @@ describe('handleSearchContext', () => {
 
     expect(result).toEqual({ results: [], error: 'DB error' });
   });
+
+  it('filters by url and scores by query when both provided', async () => {
+    const matching = slice({ id: '1', url: 'https://example.com', title: 'React Guide', text: 'React hooks tutorial', position: 0 });
+    const nonMatching = slice({ id: '2', url: 'https://example.com', title: 'Other', text: 'unrelated content', position: 1 });
+    mockGetSlicesByUrl.mockResolvedValue([nonMatching, matching]);
+
+    const result = await handleSearchContext({
+      url: 'https://example.com',
+      query: 'React',
+      topK: 5,
+    });
+
+    expect(mockGetSlicesByUrl).toHaveBeenCalledWith('https://example.com');
+    expect(mockGetAllSlices).not.toHaveBeenCalled();
+    expect(result.results!.length).toBeGreaterThan(0);
+    expect(result.results![0].title).toBe('React Guide');
+  });
+
+  it('handles special regex characters in query without throwing', async () => {
+    const slices = [
+      slice({ id: '1', title: 'React (Hooks)', text: 'Learn about React.' }),
+      slice({ id: '2', title: 'a.b pattern', text: 'Regex example a.b' }),
+    ];
+    mockGetAllSlices.mockResolvedValue(slices);
+
+    const result1 = await handleSearchContext({ query: 'React (Hooks)', topK: 5 });
+    expect(result1.results).toBeDefined();
+    expect(result1.error).toBeUndefined();
+
+    const result2 = await handleSearchContext({ query: 'a.b', topK: 5 });
+    expect(result2.results).toBeDefined();
+    expect(result2.error).toBeUndefined();
+  });
+
+  it('ignores short words (< 2 chars) in scoring', async () => {
+    const slices = [
+      slice({ id: '1', title: 'A B', text: 'single letter a b c' }),
+      slice({ id: '2', title: 'React', text: 'react library' }),
+    ];
+    mockGetAllSlices.mockResolvedValue(slices);
+
+    const result = await handleSearchContext({ query: 'a b react', topK: 5 });
+
+    expect(result.results!.length).toBeGreaterThan(0);
+    expect(result.results![0].title).toBe('React');
+  });
+
+  it('higher frequency of match increases score', async () => {
+    const slices = [
+      slice({ id: '1', title: 'Guide', text: 'React is mentioned once' }),
+      slice({ id: '2', title: 'Tutorial', text: 'React React React repeated many times React' }),
+    ];
+    mockGetAllSlices.mockResolvedValue(slices);
+
+    const result = await handleSearchContext({ query: 'React', topK: 5 });
+
+    expect(result.results!.length).toBe(2);
+    expect(result.results![0].text).toContain('React React React');
+  });
+
+  it('clamps topK to minimum 1 when 0 or negative', async () => {
+    mockGetAllSlices.mockResolvedValue([slice(), slice(), slice()]);
+
+    const result1 = await handleSearchContext({ query: 'content', topK: 0 });
+    expect(result1.results!.length).toBeGreaterThanOrEqual(1);
+
+    const result2 = await handleSearchContext({ query: 'content', topK: -5 });
+    expect(result2.results!.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('handles slices with null/undefined title, url, text', async () => {
+    const slices = [
+      slice({ id: '1', title: undefined as unknown as string, url: undefined as unknown as string, text: undefined as unknown as string }),
+    ];
+    mockGetAllSlices.mockResolvedValue(slices);
+
+    const result = await handleSearchContext({ query: '', topK: 5 });
+
+    expect(result.results).toBeDefined();
+    expect(result.results!.every((r) => typeof r.title === 'string' && typeof r.url === 'string' && typeof r.text === 'string')).toBe(true);
+  });
+
+  it('uses default topK of 3 when not specified', async () => {
+    const slices = Array.from({ length: 10 }, (_, i) =>
+      slice({ id: `s${i}`, url: 'https://example.com', text: `content ${i}`, position: i })
+    );
+    mockGetSlicesByUrl.mockResolvedValue(slices);
+
+    const result = await handleSearchContext({ url: 'https://example.com' });
+
+    expect(result.results!.length).toBe(3);
+  });
+
+  it('returns empty results when url has slices but query matches none', async () => {
+    const slices = [
+      slice({ id: '1', url: 'https://example.com', title: 'Alpha', text: 'no match here' }),
+    ];
+    mockGetSlicesByUrl.mockResolvedValue(slices);
+
+    const result = await handleSearchContext({
+      url: 'https://example.com',
+      query: 'xyznonexistent',
+      topK: 5,
+    });
+
+    expect(result.results).toEqual([]);
+  });
+
+  describe('scoring behavior', () => {
+    it('ranks title match above body-only match (title adds +2 per word)', async () => {
+      const slices = [
+        slice({ id: '1', title: 'Other', text: 'React React in body only' }),
+        slice({ id: '2', title: 'React Guide', text: 'content' }),
+      ];
+      mockGetAllSlices.mockResolvedValue(slices);
+
+      const result = await handleSearchContext({ query: 'React', topK: 5 });
+
+      expect(result.results![0].title).toBe('React Guide');
+    });
+
+    it('ranks higher body frequency above single body match', async () => {
+      const slices = [
+        slice({ id: '1', title: 'Alpha', text: 'React once' }),
+        slice({ id: '2', title: 'Beta', text: 'React React React React' }),
+      ];
+      mockGetAllSlices.mockResolvedValue(slices);
+
+      const result = await handleSearchContext({ query: 'React', topK: 5 });
+
+      expect(result.results![0].title).toBe('Beta');
+    });
+
+    it('scores multi-word query: title match + body match beats body-only', async () => {
+      const slices = [
+        slice({ id: '1', title: 'Random', text: 'React hooks React hooks' }),
+        slice({ id: '2', title: 'React Hooks', text: 'short' }),
+      ];
+      mockGetAllSlices.mockResolvedValue(slices);
+
+      const result = await handleSearchContext({ query: 'React hooks', topK: 5 });
+
+      expect(result.results![0].title).toBe('React Hooks');
+    });
+
+    it('is case insensitive', async () => {
+      const slices = [
+        slice({ id: '1', title: 'REACT LIBRARY', text: 'Content' }),
+        slice({ id: '2', title: 'Vue', text: 'vue framework' }),
+      ];
+      mockGetAllSlices.mockResolvedValue(slices);
+
+      const result = await handleSearchContext({ query: 'react', topK: 5 });
+
+      expect(result.results!.length).toBeGreaterThan(0);
+      expect(result.results![0].title).toBe('REACT LIBRARY');
+    });
+
+    it('matches substrings within words', async () => {
+      const slices = [
+        slice({ id: '1', title: 'Preact', text: 'Preact is like React' }),
+        slice({ id: '2', title: 'Vue', text: 'Different framework' }),
+      ];
+      mockGetAllSlices.mockResolvedValue(slices);
+
+      const result = await handleSearchContext({ query: 'react', topK: 5 });
+
+      expect(result.results!.length).toBeGreaterThan(0);
+      expect(result.results![0].title).toBe('Preact');
+    });
+
+    it('combines title and text for scoring', async () => {
+      const slices = [
+        slice({ id: '1', title: 'React', text: 'React and more React' }),
+        slice({ id: '2', title: 'Vue', text: 'Vue Vue Vue Vue' }),
+      ];
+      mockGetAllSlices.mockResolvedValue(slices);
+
+      const result = await handleSearchContext({ query: 'React', topK: 5 });
+
+      expect(result.results![0].title).toBe('React');
+      expect(result.results![0].text).toContain('React');
+    });
+
+    it('orders results by descending score', async () => {
+      const slices = [
+        slice({ id: '1', title: 'C', text: 'word once' }),
+        slice({ id: '2', title: 'A', text: 'word word word' }),
+        slice({ id: '3', title: 'B', text: 'word word' }),
+      ];
+      mockGetAllSlices.mockResolvedValue(slices);
+
+      const result = await handleSearchContext({ query: 'word', topK: 5 });
+
+      expect(result.results!.map((r) => r.title)).toEqual(['A', 'B', 'C']);
+    });
+
+    it('scores both title and text; title bonus stacks with occurrence count', async () => {
+      const slices = [
+        slice({ id: '1', title: 'React', text: 'React' }),
+        slice({ id: '2', title: 'Vue', text: 'React React React' }),
+      ];
+      mockGetAllSlices.mockResolvedValue(slices);
+
+      const result = await handleSearchContext({ query: 'React', topK: 5 });
+
+      expect(result.results![0].title).toBe('React');
+    });
+  });
 });

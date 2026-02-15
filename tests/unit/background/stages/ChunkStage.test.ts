@@ -2,7 +2,13 @@
  * Unit tests for src/background/stages/ChunkStage.ts
  */
 
+// Mock embedding module to avoid loading @mlc-ai/web-llm (ESM) in Jest
+jest.mock('@/entrypoints/background/search/embedding', () => ({
+  getEmbeddings: jest.fn((texts: string[]) => Promise.resolve(texts.map(() => [0.1, 0.2, 0.3]))),
+}));
+
 import { ChunkStage, chunkStage } from '@/entrypoints/background/stages/ChunkStage';
+import { getEmbeddings } from '@/entrypoints/background/search/embedding';
 import { PipelineStage, StageQueueItem } from '@/utils/types';
 
 function makeItem(overrides: Partial<StageQueueItem> = {}): StageQueueItem {
@@ -78,6 +84,82 @@ describe('ChunkStage', () => {
         expect(chunk).toHaveProperty('text');
         expect(chunk).toHaveProperty('position', i);
       });
+    });
+
+    it('calls getEmbeddings for each chunk and attaches embeddings', async () => {
+      const html = `
+        <html><body><p>This is a paragraph with enough content to pass the minimum length.
+        We need at least fifty characters to be valid for chunking.</p></body></html>
+      `;
+      const item = makeItem({ rawHtml: html });
+
+      const result = await chunkStage.process(item);
+
+      expect(getEmbeddings).toHaveBeenCalledWith(expect.any(Array));
+      const textsPassed = (getEmbeddings as jest.Mock).mock.calls[0][0];
+      expect(textsPassed.length).toBe(result.chunks!.length);
+      result.chunks!.forEach((chunk) => {
+        expect(chunk.embedding).toEqual([0.1, 0.2, 0.3]);
+      });
+    });
+
+    it('maps each chunk to the correct embedding by position index', async () => {
+      // Use position-specific mock: embedding at index i = [i, i*10] so we can verify mapping
+      const mockGetEmbeddings = getEmbeddings as jest.Mock;
+      mockGetEmbeddings.mockImplementationOnce((texts: string[]) =>
+        Promise.resolve(texts.map((_, i) => [i, i * 10]))
+      );
+
+      const longContent = 'Word '.repeat(300);
+      const html = `<html><body><p>${longContent}</p></body></html>`;
+      const item = makeItem({ rawHtml: html });
+
+      const result = await chunkStage.process(item);
+
+      const textsPassed = mockGetEmbeddings.mock.calls[0][0];
+      expect(textsPassed.length).toBe(result.chunks!.length);
+
+      result.chunks!.forEach((chunk, index) => {
+        expect(chunk.position).toBe(index);
+        expect(chunk.text).toBe(textsPassed[index]);
+        expect(chunk.embedding).toEqual([index, index * 10]);
+      });
+    });
+
+    it('throws when embedding count does not match chunk count', async () => {
+      const mockGetEmbeddings = getEmbeddings as jest.Mock;
+      mockGetEmbeddings.mockImplementationOnce((texts: string[]) =>
+        Promise.resolve(texts.slice(0, -1).map(() => [0.1])) // one fewer embedding
+      );
+
+      const longContent = 'Word '.repeat(300);
+      const html = `<html><body><p>${longContent}</p></body></html>`;
+      const item = makeItem({ rawHtml: html });
+
+      await expect(chunkStage.process(item)).rejects.toThrow(/Embedding count mismatch/);
+    });
+
+    it('preserves item url and title in result', async () => {
+      const html = `
+        <html><body><p>This is a paragraph with enough content to pass the minimum length.
+        We need at least fifty characters to be valid for chunking.</p></body></html>
+      `;
+      const item = makeItem({ url: 'https://site.com/page', title: 'My Page', rawHtml: html });
+
+      const result = await chunkStage.process(item);
+
+      expect(result.url).toBe('https://site.com/page');
+      expect(result.title).toBe('My Page');
+    });
+  });
+
+  describe('setup and teardown', () => {
+    it('setup resolves without error', async () => {
+      await expect(chunkStage.setup()).resolves.not.toThrow();
+    });
+
+    it('teardown resolves without error', async () => {
+      await expect(chunkStage.teardown()).resolves.not.toThrow();
     });
   });
 

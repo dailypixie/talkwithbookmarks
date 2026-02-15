@@ -59,4 +59,60 @@ describe('Integration: Search Context', () => {
     const result = await handleSearchContext({ query: 'angular' });
     expect(result.results).toEqual([]);
   });
+
+  it('should search within specific URL when both url and query provided', async () => {
+    const result = await handleSearchContext({
+      query: 'patterns',
+      url: 'https://example.com/page2',
+    });
+
+    expect(result.results).toBeDefined();
+    expect(result.results!.length).toBeGreaterThan(0);
+    expect(result.results!.every((r) => r.url === 'https://example.com/page2')).toBe(true);
+    expect(result.results![0].title).toBe('Advanced React Patterns');
+  });
+
+  it('should respect topK limit on results', async () => {
+    await addSlice({
+      id: 'slice-4',
+      url: 'https://example.com/page1',
+      title: 'React State',
+      text: 'React state management.',
+      position: 1,
+    });
+
+    const result = await handleSearchContext({ query: 'react', topK: 2 });
+
+    expect(result.results!.length).toBe(2);
+  });
+
+  it('should return all slices for url when no query, ordered by position', async () => {
+    await addSlice({
+      id: 'slice-extra',
+      url: 'https://example.com/page1',
+      title: 'React Part 2',
+      text: 'More React content.',
+      position: 1,
+    });
+
+    const result = await handleSearchContext({ url: 'https://example.com/page1', topK: 10 });
+
+    expect(result.results!.length).toBe(2);
+    expect(result.results![0].title).toBe('React Hooks Guide');
+    expect(result.results![1].title).toBe('React Part 2');
+  });
+
+  it('should return results with correct shape (title, url, text)', async () => {
+    const result = await handleSearchContext({ query: 'react', topK: 3 });
+
+    expect(result.results!.length).toBeGreaterThan(0);
+    for (const r of result.results!) {
+      expect(r).toHaveProperty('title');
+      expect(r).toHaveProperty('url');
+      expect(r).toHaveProperty('text');
+      expect(typeof r.title).toBe('string');
+      expect(typeof r.url).toBe('string');
+      expect(typeof r.text).toBe('string');
+    }
+  });
 });

@@ -82,6 +82,55 @@ describe('DownloadStage', () => {
       const result = await downloadStage.process(item);
       expect(result.rawHtml).toBe(html);
     });
+
+    it('passes abort signal to fetch when provided', async () => {
+      const html = '<html><body>' + 'x'.repeat(150) + '</body></html>';
+      mockFetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(html),
+      } as any);
+
+      const abortController = new AbortController();
+      const item = makeItem();
+
+      await downloadStage.process(item, abortController.signal);
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://example.com',
+        expect.objectContaining({
+          signal: expect.any(AbortSignal),
+        })
+      );
+      const fetchCall = mockFetch.mock.calls[0]?.[1];
+      expect(fetchCall).toBeDefined();
+      expect(fetchCall!.signal).toBeDefined();
+    });
+
+    it('preserves item url and title in result', async () => {
+      const html = '<html><body>' + 'x'.repeat(150) + '</body></html>';
+      mockFetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(html),
+      } as any);
+
+      const item = makeItem({ url: 'https://other.com/doc', title: 'Document' });
+      const result = await downloadStage.process(item);
+
+      expect(result.url).toBe('https://other.com/doc');
+      expect(result.title).toBe('Document');
+      expect(result.rawHtml).toBe(html);
+    });
+
+  });
+
+  describe('setup and teardown', () => {
+    it('setup resolves without error', async () => {
+      await expect(downloadStage.setup()).resolves.not.toThrow();
+    });
+
+    it('teardown resolves without error', async () => {
+      await expect(downloadStage.teardown()).resolves.not.toThrow();
+    });
   });
 
   describe('shouldProcess', () => {

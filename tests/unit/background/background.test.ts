@@ -2,7 +2,7 @@
  * Unit tests for src/background/background.ts message routing
  */
 
-import { MessageAction } from '@/utils/types';
+import { MessageAction, PipelineStage } from '@/utils/types';
 
 // Capture the message listener when background registers it
 let messageListener: ((message: unknown, sender: unknown, sendResponse: (r?: unknown) => void) => boolean) | null = null;
@@ -38,8 +38,8 @@ jest.mock('@/entrypoints/background/bookmarks', () => ({
   bookmarksDataSource: { fetchItems: mockFetchItems },
 }));
 
-jest.mock('@/entrypoints/background/SimplePipeline', () => ({
-  simplePipeline: {
+jest.mock('@/entrypoints/background/IndexingPipeline', () => ({
+  indexingPipeline: {
     start: mockStart,
     pause: mockPause,
     resume: mockResume,
@@ -111,7 +111,7 @@ describe('Background message routing', () => {
     mockGetStatus.mockReturnValue({
       isRunning: false,
       isPaused: false,
-      metrics: {},
+      metrics: { stage: PipelineStage.DOWNLOAD },
     });
   });
 
@@ -266,7 +266,7 @@ describe('Background message routing', () => {
       mockGetStatus.mockReturnValue({
         isRunning: false,
         isPaused: false,
-        metrics: {},
+        metrics: { stage: PipelineStage.DOWNLOAD },
       });
       const result = await runListener({ action: MessageAction.GET_INDEXING_PROGRESS });
       expect(mockGetIndexingStats).toHaveBeenCalled();
@@ -276,30 +276,41 @@ describe('Background message routing', () => {
         processed: 5,
         failed: 1,
         status: 'idle',
+        stage: 'download',
       });
     });
 
     it('reports INDEXING status when pipeline is running', async () => {
       mockGetIndexingStats.mockResolvedValue({ total: 10, processed: 3, failed: 0 });
-      mockGetStatus.mockReturnValue({ isRunning: true, isPaused: false, metrics: {} });
+      mockGetStatus.mockReturnValue({
+        isRunning: true,
+        isPaused: false,
+        metrics: { stage: PipelineStage.CHUNK },
+      });
       const result = await runListener({ action: MessageAction.GET_INDEXING_PROGRESS });
       expect(result).toEqual({
         total: 10,
         processed: 3,
         failed: 0,
         status: 'indexing',
+        stage: 'chunk',
       });
     });
 
     it('reports PAUSED status when pipeline is paused', async () => {
       mockGetIndexingStats.mockResolvedValue({ total: 10, processed: 3, failed: 0 });
-      mockGetStatus.mockReturnValue({ isRunning: true, isPaused: true, metrics: {} });
+      mockGetStatus.mockReturnValue({
+        isRunning: true,
+        isPaused: true,
+        metrics: { stage: PipelineStage.DOWNLOAD },
+      });
       const result = await runListener({ action: MessageAction.GET_INDEXING_PROGRESS });
       expect(result).toEqual({
         total: 10,
         processed: 3,
         failed: 0,
         status: 'paused',
+        stage: 'download',
       });
     });
 
@@ -311,11 +322,19 @@ describe('Background message routing', () => {
 
     it('handles GET_DEBUG_DATA', async () => {
       mockGetIndexingStats.mockResolvedValue({ total: 5, processed: 3, failed: 1 });
-      mockGetStatus.mockReturnValue({ isRunning: false, isPaused: false, metrics: {} });
+      mockGetStatus.mockReturnValue({
+        isRunning: false,
+        isPaused: false,
+        metrics: { stage: PipelineStage.DOWNLOAD },
+      });
       const result = await runListener({ action: MessageAction.GET_DEBUG_DATA });
       expect(result).toEqual({
         stats: { total: 5, processed: 3, failed: 1 },
-        status: { isRunning: false, isPaused: false, metrics: {} },
+        status: {
+          isRunning: false,
+          isPaused: false,
+          metrics: { stage: PipelineStage.DOWNLOAD },
+        },
       });
     });
   });
