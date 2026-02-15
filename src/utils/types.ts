@@ -17,6 +17,7 @@ export enum MessageAction {
   // Debug
   GET_DEBUG_DATA = 'getDebugData',
   CLEAR_DATA = 'clearData',
+  CLEAR_INDEXED_DATA = 'clearIndexedData',
 
   // Database Management
   EXPORT_DATABASE = 'exportDatabase',
@@ -116,6 +117,12 @@ export enum StageItemQueueStatus {
   SKIPPED = 'skipped',
 }
 
+export type ChunkItem = {
+  text: string;
+  position: number;
+  embedding?: number[];
+}
+
 // ======================
 // Interfaces
 // ======================
@@ -135,7 +142,7 @@ export interface StageQueueItem {
   /** Extracted text content (after chunk stage) */
   textContent?: string;
   /** Semantic chunks (after chunk stage) */
-  chunks?: { text: string; position: number }[];
+  chunks?: ChunkItem[];
   /** Error message if failed */
   error?: string;
   /** Retry count */
@@ -191,6 +198,7 @@ export type SliceItem = {
   text: string;
   section?: string; // Closest header
   position?: number; // Order in document
+  embedding?: number[];
 };
 
 export type Conversation = {

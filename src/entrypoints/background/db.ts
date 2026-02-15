@@ -108,6 +108,10 @@ export async function addSlice(slice: SliceItem): Promise<string> {
   return await currentDb().slices.add(slice);
 }
 
+export async function addEmbeddingToSlice(sliceId: string, embedding: number[]): Promise<number> {
+  return await currentDb().slices.update(sliceId, { embedding });
+}
+
 export async function getSlicesByUrl(url: string): Promise<SliceItem[]> {
   return await currentDb().slices.where('url').equals(url).toArray();
 }
@@ -173,6 +177,16 @@ export async function clearDatabase(): Promise<void> {
     logger.info('Database cleared');
   } catch (error) {
     logger.error('Error clearing database', error as Error);
+  }
+}
+
+export async function clearIndexedData(): Promise<void> {
+  try {
+    await currentDb().pages.clear();
+    await currentDb().slices.clear();
+    logger.info('Indexed data cleared');
+  } catch (error) {
+    logger.error('Error clearing indexed data', error as Error);
   }
 }
 

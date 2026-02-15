@@ -2,7 +2,7 @@
  * Simplified Pipeline for Bookmarks Processing
  * Coordinates 2-stage indexing pipeline: Download → Chunk
  */
-import { addPageToList, addSlice, getPageByUrl, updateListItemProcessedAt } from '@/entrypoints/background/db';
+import { addEmbeddingToSlice, addPageToList, addSlice, getPageByUrl, updateListItemProcessedAt } from '@/entrypoints/background/db';
 import {
   PageItem,
   PipelineConfig,
@@ -18,20 +18,24 @@ import {
 import { pipelineLogger as logger } from '@/utils/logger';
 import { downloadStage, chunkStage, StageProcessor } from '@/entrypoints/background/stages';
 import { pipelineEvents } from '@/entrypoints/background/events';
+import { embeddingStage } from './stages/EmbeddingStage';
 
 // Stage configuration with their processors
 const STAGES: { stage: PipelineStage; processor: StageProcessor }[] = [
   { stage: PipelineStage.DOWNLOAD, processor: downloadStage },
   { stage: PipelineStage.CHUNK, processor: chunkStage },
+  // { stage: PipelineStage.EMBEDDING, processor: embeddingStage },
+
 ];
 
 // Default concurrency limits per stage
 const DEFAULT_CONCURRENCY: Partial<Record<PipelineStage, number>> = {
   [PipelineStage.DOWNLOAD]: 10,
   [PipelineStage.CHUNK]: 5,
+  // [PipelineStage.EMBEDDING]: 1,
 };
 
-export class SimplePipeline {
+export class IndexingPipeline {
   private abortController: AbortController | null = null;
   private isRunning = false;
   private isPaused = false;
@@ -246,6 +250,7 @@ export class SimplePipeline {
             title: result.title,
             text: chunk.text,
             position: chunk.position,
+            embedding: chunk.embedding,
           });
         }
       }
@@ -355,4 +360,4 @@ export class SimplePipeline {
   }
 }
 
-export const simplePipeline = new SimplePipeline();
+export const indexingPipeline = new IndexingPipeline();

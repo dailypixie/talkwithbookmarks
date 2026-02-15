@@ -73,7 +73,7 @@ export function IndexingInterface() {
   const handleClear = async () => {
     if (confirm('Are you sure you want to clear all data?')) {
       try {
-        await Runtime.clearData();
+        await Runtime.clearAllData();
         setProgress({ total: 0, processed: 0, status: IndexingStatus.IDLE });
       } catch (error) {
         console.error('Error clearing data:', error);

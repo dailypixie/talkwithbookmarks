@@ -33,9 +33,15 @@ export class Runtime {
     });
   }
 
-  static clearData() {
+  static clearAllData() {
     return chrome.runtime.sendMessage({
       action: MessageAction.CLEAR_DATA,
+    });
+  }
+
+  static clearIndexedData() {
+    return chrome.runtime.sendMessage({
+      action: MessageAction.CLEAR_INDEXED_DATA,
     });
   }
 

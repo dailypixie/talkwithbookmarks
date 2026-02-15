@@ -3,7 +3,7 @@ import { Conversation, MessageAction } from '@/utils/types';
 import { ConversationList } from '@/components/molecules/ConversationList';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from '@/components/atoms/button';
-}import { Runtime } from '@/utils/runtime';
+import { Runtime } from '@/utils/runtime';
 
 interface ConversationHistoryProps {
   onSelectConversation: (conversation: Conversation) => void;

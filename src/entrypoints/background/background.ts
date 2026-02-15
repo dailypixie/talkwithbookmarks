@@ -4,8 +4,8 @@
  */
 
 import { bookmarksDataSource } from '@/entrypoints/background/bookmarks';
-import { simplePipeline } from '@/entrypoints/background/SimplePipeline';
-import { getIndexingStats, clearDatabase, getPageByUrl } from '@/entrypoints/background/db';
+import { indexingPipeline } from '@/entrypoints/background/IndexingPipeline';
+import { getIndexingStats, clearDatabase, getPageByUrl, clearIndexedData } from '@/entrypoints/background/db';
 import { isExcluded } from '@/utils/html';
 import { backgroundLogger as logger } from '@/utils/logger';
 import { MessageAction, IndexingStatus, IndexingProgress, PipelineState } from '@/utils/types';
@@ -115,7 +115,7 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
           sendResponse({ success: true, itemsQueued: items.length });
           // Run pipeline without awaiting so the popup gets a response immediately
           // and can show progress via GET_INDEXING_PROGRESS polling
-          void simplePipeline.start(items);
+          indexingPipeline.start(items);
           break;
         }
 
@@ -138,7 +138,7 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
               processed: 0,
             });
           }
-          const status = simplePipeline.getStatus();
+          const status = indexingPipeline.getStatus();
           if (status.isRunning) {
             sendResponse({ success: false, count: 0, message: 'Indexing already in progress' });
             break;
@@ -153,26 +153,26 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
           }
           logger.info(`Queueing ${toQueue.length} manual URLs for indexing`);
           sendResponse({ success: true, count: toQueue.length });
-          void simplePipeline.start(toQueue);
+          indexingPipeline.start(toQueue);
           break;
         }
 
         case MessageAction.PAUSE_INDEXING: {
           logger.info('Pausing indexing...');
-          simplePipeline.pause();
+          indexingPipeline.pause();
           sendResponse({ success: true });
           break;
         }
 
         case MessageAction.RESUME_INDEXING: {
           logger.info('Resuming indexing...');
-          simplePipeline.resume();
+          indexingPipeline.resume();
           sendResponse({ success: true });
           break;
         }
 
         case MessageAction.GET_INDEXING_PROGRESS: {
-          const status: PipelineState = simplePipeline.getStatus();
+          const status: PipelineState = indexingPipeline.getStatus();
           const stats = await getIndexingStats();
           const attempted = stats.processed + stats.failed;
           const allAttempted = stats.total > 0 && attempted >= stats.total;
@@ -201,9 +201,16 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
           break;
         }
 
+        case MessageAction.CLEAR_INDEXED_DATA: {
+          logger.info('Clearing indexed data...');
+          await clearIndexedData();
+          sendResponse({ success: true });
+          break;
+        }
+
         case MessageAction.GET_DEBUG_DATA: {
           const stats = await getIndexingStats();
-          const status = simplePipeline.getStatus();
+          const status = indexingPipeline.getStatus();
 
           sendResponse({
             stats,
