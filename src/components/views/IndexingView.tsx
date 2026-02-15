@@ -71,7 +71,7 @@ export function IndexingInterface() {
   };
 
   const handleClearIndexedData = async () => {
-    if (confirm('Are you sure you want to clear all data?')) {
+    if (confirm('Are you sure you want to clear indexed data?')) {
       try {
         await Runtime.clearIndexedData();
         setProgress({ total: 0, processed: 0, status: IndexingStatus.IDLE });
@@ -91,8 +91,6 @@ export function IndexingInterface() {
       }
     }
   };
-
-
 
   const handleQueueUrls = async () => {
     const urls = manualUrls
